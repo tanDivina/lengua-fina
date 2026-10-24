@@ -10,6 +10,9 @@ import {
   type AgeRange,
   type QlooEntity,
 } from "./qloo";
+import { groundDraft, type MarketResult } from "./grounding";
+
+export type { GroundedReference, MarketResult } from "./grounding";
 
 const MODEL = "claude-opus-5-5";
 
@@ -19,21 +22,6 @@ export type LocalizeInput = {
   copy: string;
   product: string;
   markets: MarketSpec[];
-};
-
-export type GroundedReference = {
-  phrase: string;
-  why: string;
-  entity: Pick<QlooEntity, "id" | "name" | "type" | "affinity">;
-};
-
-export type MarketResult = {
-  city: string;
-  language: string;
-  copy: string;
-  backTranslation: string | null;
-  references: GroundedReference[];
-  flags: { original: string; problem: string; evidence: string }[];
 };
 
 export type AgentEvent =
@@ -206,24 +194,15 @@ export async function runLocalization(input: LocalizeInput, emit: (e: AgentEvent
       ),
     }),
     run: async ({ markets }) => {
-      const unknown = markets.flatMap((m) =>
-        m.references.filter((r) => !seen.has(r.entity_id)).map((r) => `${m.city}: "${r.phrase}" (${r.entity_id})`),
-      );
-      if (unknown.length) {
-        emit({ type: "note", text: `Rejected ${unknown.length} reference(s) that Qloo never returned; asking for a fix.` });
-        return `Rejected. These references were not returned by any Qloo tool in this session: ${unknown.join("; ")}. Replace them with entities you retrieved, or remove them, then call submit_localization again.`;
+      const outcome = groundDraft(markets, seen);
+      if (!outcome.ok) {
+        emit({
+          type: "note",
+          text: `Rejected ${outcome.unknown.length} reference(s) that Qloo never returned; asking for a fix.`,
+        });
+        return `Rejected. These references were not returned by any Qloo tool in this session: ${outcome.unknown.join("; ")}. Replace them with entities you retrieved, or remove them, then call submit_localization again.`;
       }
-      result = markets.map((m) => ({
-        city: m.city,
-        language: m.language,
-        copy: m.copy,
-        backTranslation: m.back_translation,
-        flags: m.flags,
-        references: m.references.map((r) => {
-          const e = seen.get(r.entity_id)!;
-          return { phrase: r.phrase, why: r.why, entity: { id: e.id, name: e.name, type: e.type, affinity: e.affinity } };
-        }),
-      }));
+      result = outcome.markets;
       return "Accepted.";
     },
   });

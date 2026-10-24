@@ -1,6 +1,7 @@
 import * as z from "zod/v4";
 import { runLocalization, type AgentEvent } from "@/lib/agent";
 import { AGE_RANGES } from "@/lib/qloo";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -26,6 +27,15 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request", issues: parsed.error.issues }, { status: 400 });
   }
 
+  if (!process.env.QLOO_API_KEY || !process.env.ANTHROPIC_API_KEY) {
+    console.error("Missing QLOO_API_KEY or ANTHROPIC_API_KEY");
+    return Response.json({ error: "The demo isn't configured yet. Please check back soon." }, { status: 503 });
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const limit = checkRateLimit(ip);
+  if (!limit.ok) return Response.json({ error: limit.message }, { status: 429 });
+
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -34,7 +44,7 @@ export async function POST(req: Request) {
         await runLocalization(parsed.data, send);
       } catch (err) {
         console.error(err);
-        send({ type: "error", message: err instanceof Error ? err.message : "Something went wrong" });
+        send({ type: "error", message: "Something went wrong while the agent was working. Please try again." });
       } finally {
         controller.close();
       }

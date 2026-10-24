@@ -26,10 +26,15 @@ An agent (Claude Opus 5.5, via the Anthropic SDK tool runner) gets the copy, the
 cp .env.example .env.local   # add QLOO_API_KEY and ANTHROPIC_API_KEY
 npm install
 npm run validate             # checks that Qloo returns different taste profiles per market
+npm test                     # grounding check unit tests
 npm run dev
 ```
 
 `npm run validate -- Tokyo Brussels "Mexico City"` compares any markets you like. Raw Qloo responses go to `scripts/out/`, which is gitignored: Qloo data must not be committed.
+
+## Public demo limits
+
+The live demo allows 6 runs per IP per hour and 300 runs a day (`RATE_LIMIT_PER_HOUR`, `RATE_LIMIT_PER_DAY`).
 
 ## Stack
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { AgentEvent, MarketResult } from "@/lib/agent";
 import type { AgeRange } from "@/lib/qloo";
+import { Waitlist } from "./waitlist";
 
 const AGE_OPTIONS: { value: AgeRange; label: string }[] = [
   { value: "24_and_younger", label: "≤24" },
@@ -36,9 +37,24 @@ export default function Home() {
   const [log, setLog] = useState<LogItem[]>([]);
   const [results, setResults] = useState<MarketResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   function updateMarket(i: number, patch: Partial<Market>) {
     setMarkets((ms) => ms.map((m, j) => (j === i ? { ...m, ...patch } : m)));
+  }
+
+  function addMarket() {
+    setMarkets((ms) => [...ms, { city: "", ages: ["30_to_34", "35_to_44"], language: "English" }]);
+  }
+
+  function removeMarket(i: number) {
+    setMarkets((ms) => ms.filter((_, j) => j !== i));
+  }
+
+  async function copyText(key: string, text: string) {
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied((k) => (k === key ? null : k)), 1500);
   }
 
   function toggleAge(i: number, age: AgeRange) {
@@ -143,7 +159,7 @@ export default function Home() {
                       className="w-1/2 rounded-md border border-line bg-paper px-2 py-1.5 outline-none focus:border-cacao"
                     />
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     {AGE_OPTIONS.map((a) => (
                       <button
                         key={a.value}
@@ -158,10 +174,28 @@ export default function Home() {
                         {a.label}
                       </button>
                     ))}
+                    {markets.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMarket(i)}
+                        className="ml-auto text-xs text-muted underline-offset-2 hover:text-warn hover:underline"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
+            {markets.length < 3 && (
+              <button
+                type="button"
+                onClick={addMarket}
+                className="mt-2 text-sm text-cacao underline-offset-2 hover:underline"
+              >
+                Add a market
+              </button>
+            )}
           </div>
 
           <button
@@ -174,6 +208,27 @@ export default function Home() {
         </section>
 
         <section className="min-w-0 space-y-6">
+          {!running && !error && log.length === 0 && !results && (
+            <div className="rounded-lg border border-dashed border-line p-6">
+              <h2 className="font-display text-2xl text-cacao">How it works</h2>
+              <ol className="mt-4 space-y-4 text-muted">
+                <li>
+                  <span className="font-medium text-ink">1. It reads the room.</span> For each market, the agent asks
+                  Qloo which artists, films, books, brands and places that audience has affinity for.
+                </li>
+                <li>
+                  <span className="font-medium text-ink">2. It tests your references.</span> It checks whether the
+                  comparisons in your copy rank with that audience, and flags the ones that won&apos;t land.
+                </li>
+                <li>
+                  <span className="font-medium text-ink">3. It rewrites, with receipts.</span> Product facts stay
+                  the same; the hooks change. Every new reference comes from Qloo data and shows its source. The agent
+                  can&apos;t submit a reference Qloo didn&apos;t return.
+                </li>
+              </ol>
+            </div>
+          )}
+
           {error && (
             <p className="rounded-lg border border-warn/40 bg-card px-4 py-3 text-warn">{error}</p>
           )}
@@ -199,9 +254,18 @@ export default function Home() {
 
           {results?.map((m) => (
             <article key={m.city} className="rounded-lg border border-line bg-card p-5">
-              <h2 className="font-display text-2xl text-cacao">
-                {m.city} <span className="text-base text-muted">· {m.language}</span>
-              </h2>
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="font-display text-2xl text-cacao">
+                  {m.city} <span className="text-base text-muted">· {m.language}</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => copyText(m.city, m.copy)}
+                  className="shrink-0 text-sm text-muted underline-offset-2 hover:text-cacao hover:underline"
+                >
+                  {copied === m.city ? "Copied" : "Copy"}
+                </button>
+              </div>
               <p className="mt-3 whitespace-pre-line leading-relaxed">{m.copy}</p>
               {m.backTranslation && (
                 <p className="mt-3 border-l-2 border-line pl-3 text-sm leading-relaxed text-muted">
@@ -246,7 +310,9 @@ export default function Home() {
         </section>
       </div>
 
-      <footer className="mt-16 text-sm text-muted">
+      <Waitlist />
+
+      <footer className="mt-10 text-sm text-muted">
         Built in Bocas del Toro, Panama, for the Qloo Agentic Hackathon. Taste data by Qloo.
       </footer>
     </main>
