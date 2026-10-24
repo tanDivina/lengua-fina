@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lengua Fina
 
-## Getting Started
+A transcreation agent for translators and small producers who sell abroad.
 
-First, run the development server:
+Translation keeps the words and loses the references. "Smooth as a Brussels praline" works in Brussels and means little in Tokyo. Lengua Fina rewrites product copy for each target market using cultural references that audience actually has affinity for, according to [Qloo](https://qloo.com)'s taste graph, and flags the source copy's references that won't land.
+
+In Spanish, *lengua* means both language and tongue: the thing you speak with and the thing you taste with.
+
+## How it works
+
+An agent (Claude Opus 5.5, via the Anthropic SDK tool runner) gets the copy, the product and up to three markets (city, age ranges, language). It has five tools:
+
+| Tool | Qloo endpoint | Purpose |
+|---|---|---|
+| `find_entity` | `/search` | Resolve references in the source copy to Qloo entities |
+| `find_tags` | `/v2/tags` | Find product tags (e.g. chocolate) to narrow an audience |
+| `market_taste` | `/v2/insights` | What an audience (city + ages + interests) has affinity for, per entity type |
+| `check_reference` | `/v2/insights` | Whether a given reference ranks in the top 100 for an audience |
+| `submit_localization` | – | Final copy per market, with references cited by Qloo entity id |
+
+**Grounding check:** `submit_localization` rejects any reference whose entity id was not returned by a Qloo tool during that run, and sends the agent back to fix it. Every reference shown in the UI links back to real Qloo data.
+
+## Run locally
 
 ```bash
+cp .env.example .env.local   # add QLOO_API_KEY and ANTHROPIC_API_KEY
+npm install
+npm run validate             # checks that Qloo returns different taste profiles per market
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run validate -- Tokyo Brussels "Mexico City"` compares any markets you like. Raw Qloo responses go to `scripts/out/`, which is gitignored: Qloo data must not be committed.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 15, TypeScript, Tailwind, `@anthropic-ai/sdk`, Zod. Deployed on Vercel.
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

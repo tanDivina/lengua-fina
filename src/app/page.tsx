@@ -1,103 +1,254 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import type { AgentEvent, MarketResult } from "@/lib/agent";
+import type { AgeRange } from "@/lib/qloo";
+
+const AGE_OPTIONS: { value: AgeRange; label: string }[] = [
+  { value: "24_and_younger", label: "≤24" },
+  { value: "25_to_29", label: "25–29" },
+  { value: "30_to_34", label: "30–34" },
+  { value: "35_to_44", label: "35–44" },
+  { value: "45_to_54", label: "45–54" },
+  { value: "55_and_older", label: "55+" },
+];
+
+type Market = { city: string; ages: AgeRange[]; language: string };
+
+// Sample copy for the demo. Its European references are deliberate: the agent
+// should find out which of them land in each market.
+const SAMPLE_PRODUCT = "70% single-origin dark chocolate bar, cacao from Bocas del Toro, Panama";
+const SAMPLE_COPY = `Grown on a small island farm in Bocas del Toro and fermented for six days in wooden boxes, this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a Brussels praline, but darker and wilder. Break off a square with your Sunday café au lait, or pair it with a glass of Port after dinner.`;
+
+const DEFAULT_MARKETS: Market[] = [
+  { city: "Tokyo", ages: ["30_to_34", "35_to_44"], language: "Japanese" },
+  { city: "Brussels", ages: ["30_to_34", "35_to_44"], language: "French" },
+  { city: "Austin", ages: ["30_to_34", "35_to_44"], language: "English" },
+];
+
+type LogItem = { kind: "tool" | "result" | "note"; text: string; names?: string[] };
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [product, setProduct] = useState(SAMPLE_PRODUCT);
+  const [copy, setCopy] = useState(SAMPLE_COPY);
+  const [markets, setMarkets] = useState<Market[]>(DEFAULT_MARKETS);
+  const [running, setRunning] = useState(false);
+  const [log, setLog] = useState<LogItem[]>([]);
+  const [results, setResults] = useState<MarketResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  function updateMarket(i: number, patch: Partial<Market>) {
+    setMarkets((ms) => ms.map((m, j) => (j === i ? { ...m, ...patch } : m)));
+  }
+
+  function toggleAge(i: number, age: AgeRange) {
+    const m = markets[i];
+    const ages = m.ages.includes(age) ? m.ages.filter((a) => a !== age) : [...m.ages, age];
+    if (ages.length) updateMarket(i, { ages });
+  }
+
+  function handle(e: AgentEvent) {
+    if (e.type === "tool") setLog((l) => [...l, { kind: "tool", text: e.label }]);
+    else if (e.type === "tool_result")
+      setLog((l) => [...l, { kind: "result", text: e.label, names: e.names }]);
+    else if (e.type === "note") setLog((l) => [...l, { kind: "note", text: e.text }]);
+    else if (e.type === "result") setResults(e.markets);
+    else if (e.type === "error") setError(e.message);
+  }
+
+  async function run() {
+    setRunning(true);
+    setLog([]);
+    setResults(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/localize", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ product, copy, markets: markets.filter((m) => m.city.trim()) }),
+      });
+      if (!res.ok || !res.body) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `Request failed (${res.status})`);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split("\n\n");
+        buffer = chunks.pop() ?? "";
+        for (const chunk of chunks) {
+          const line = chunk.trim();
+          if (line.startsWith("data: ")) handle(JSON.parse(line.slice(6)) as AgentEvent);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+      <header className="mb-10 max-w-2xl">
+        <h1 className="font-display text-5xl tracking-tight text-cacao">Lengua Fina</h1>
+        <p className="mt-3 text-lg leading-relaxed text-muted">
+          Translation keeps the words and loses the references. Lengua Fina rewrites your product copy for each
+          market using the artists, films, books and brands that audience actually loves, according to Qloo&apos;s
+          taste data. Every reference it adds is traceable.
+        </p>
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <section className="space-y-6">
+          <label className="block">
+            <span className="text-sm font-medium">Product</span>
+            <input
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              className="mt-1.5 w-full rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-cacao"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium">Source copy</span>
+            <textarea
+              value={copy}
+              onChange={(e) => setCopy(e.target.value)}
+              rows={7}
+              className="mt-1.5 w-full rounded-lg border border-line bg-card px-3 py-2 leading-relaxed outline-none focus:border-cacao"
+            />
+          </label>
+
+          <div>
+            <span className="text-sm font-medium">Markets</span>
+            <div className="mt-1.5 space-y-3">
+              {markets.map((m, i) => (
+                <div key={i} className="rounded-lg border border-line bg-card p-3">
+                  <div className="flex gap-2">
+                    <input
+                      value={m.city}
+                      onChange={(e) => updateMarket(i, { city: e.target.value })}
+                      placeholder="City"
+                      className="w-1/2 rounded-md border border-line bg-paper px-2 py-1.5 outline-none focus:border-cacao"
+                    />
+                    <input
+                      value={m.language}
+                      onChange={(e) => updateMarket(i, { language: e.target.value })}
+                      placeholder="Language"
+                      className="w-1/2 rounded-md border border-line bg-paper px-2 py-1.5 outline-none focus:border-cacao"
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {AGE_OPTIONS.map((a) => (
+                      <button
+                        key={a.value}
+                        type="button"
+                        onClick={() => toggleAge(i, a.value)}
+                        className={`rounded-full border px-2.5 py-0.5 text-xs ${
+                          m.ages.includes(a.value)
+                            ? "border-cacao bg-cacao text-paper"
+                            : "border-line text-muted hover:border-cacao"
+                        }`}
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={run}
+            disabled={running}
+            className="w-full rounded-lg bg-cacao px-4 py-3 font-medium text-paper transition hover:opacity-90 disabled:opacity-60"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+            {running ? "Reading the room…" : "Transcreate"}
+          </button>
+        </section>
+
+        <section className="min-w-0 space-y-6">
+          {error && (
+            <p className="rounded-lg border border-warn/40 bg-card px-4 py-3 text-warn">{error}</p>
+          )}
+
+          {log.length > 0 && (
+            <div className="rounded-lg border border-line bg-card p-4">
+              <h2 className="mb-3 text-sm font-medium text-muted">What the agent is doing</h2>
+              <ol className="max-h-80 space-y-2 overflow-y-auto text-sm">
+                {log.map((item, i) => (
+                  <li key={i} className={item.kind === "note" ? "italic text-muted" : ""}>
+                    {item.kind === "result" ? (
+                      <span className="text-leaf">
+                        ↳ {item.names?.length ? item.names.join(" · ") : "no results"}
+                      </span>
+                    ) : (
+                      item.text
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {results?.map((m) => (
+            <article key={m.city} className="rounded-lg border border-line bg-card p-5">
+              <h2 className="font-display text-2xl text-cacao">
+                {m.city} <span className="text-base text-muted">· {m.language}</span>
+              </h2>
+              <p className="mt-3 whitespace-pre-line leading-relaxed">{m.copy}</p>
+              {m.backTranslation && (
+                <p className="mt-3 border-l-2 border-line pl-3 text-sm leading-relaxed text-muted">
+                  {m.backTranslation}
+                </p>
+              )}
+
+              {m.references.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted">References, from Qloo</h3>
+                  <ul className="mt-2 space-y-2">
+                    {m.references.map((r) => (
+                      <li key={r.entity.id + r.phrase} className="text-sm">
+                        <span className="font-medium text-leaf">{r.entity.name}</span>{" "}
+                        <span className="text-muted">
+                          ({r.entity.type.replace("urn:entity:", "")}
+                          {r.entity.affinity !== null && `, affinity ${r.entity.affinity.toFixed(2)}`})
+                        </span>
+                        <span className="block text-muted">{r.why}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {m.flags.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted">Won&apos;t land here</h3>
+                  <ul className="mt-2 space-y-2">
+                    {m.flags.map((f, i) => (
+                      <li key={i} className="text-sm">
+                        <span className="font-medium text-warn">“{f.original}”</span>{" "}
+                        <span>{f.problem}</span>
+                        <span className="block text-muted">{f.evidence}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+          ))}
+        </section>
+      </div>
+
+      <footer className="mt-16 text-sm text-muted">
+        Built in Bocas del Toro, Panama, for the Qloo Agentic Hackathon. Taste data by Qloo.
       </footer>
-    </div>
+    </main>
   );
 }

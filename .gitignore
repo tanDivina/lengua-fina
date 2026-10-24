@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Qloo responses must not be committed (hackathon rules)
+scripts/out/
+!.env.example
