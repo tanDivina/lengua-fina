@@ -26,12 +26,15 @@ You paste your product copy and pick up to three markets (city, age group, langu
 
 - An agent on Claude Opus 5.5 (Anthropic SDK tool runner) with five tools over the Qloo hackathon API: `/search`, `/v2/tags` and `/v2/insights` (location + age signals, interest tags).
 - **Grounding by construction:** the agent's final answer goes through a check that rejects any reference whose Qloo entity id wasn't returned during that run. If it tries to slip one in, it gets sent back to fix it. You can't get a made-up reference out of Lengua Fina.
-- A validation script that compares Qloo's taste profiles across markets with no LLM involved, which we used to confirm the idea before building on it. [Overlap results.]
+- A validation script that compares Qloo's taste profiles across markets with no LLM involved, which we used to confirm the idea before building on it. For 30–44-year-olds in Tokyo, Brussels and Austin, the top-20 artists overlap 0–5% between any two markets and the top-20 brands 0%, with recognisably local names in every list (NUMBER GIRL and 木村カエラ in Tokyo; Tamino and Yseult in Brussels; Heartless Bastards in Austin). Books overlap far more (33–48%), so the agent leans on the entity types that actually diverge.
 - Next.js on Vercel, streaming the agent's steps to the page so you can watch it work.
 
 ## Challenges
 
-[Fill in from the build: e.g. Qloo response shapes, locality matching, keeping the agent from over-stuffing references.]
+- Qloo's "chocolate" tags turn out to be place categories (chocolate shops, chocolate artisans), and adding one as an interest signal didn't change the artist or brand insights at all. The product signal is a hint, not a filter — the market signal does the real work.
+- Not every entity type diverges: books overlap 33–48% across our three test markets. The agent has to know which lanes carry local taste.
+
+[More from the first full agent runs: e.g. locality matching, keeping the agent from over-stuffing references.]
 
 ## What we're proud of
 
