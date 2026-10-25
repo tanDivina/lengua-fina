@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
-  axes: ["SOFT", "opsz"],
 });
 
 const sans = Inter({

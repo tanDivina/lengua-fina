@@ -1,44 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f7f1e8;
-  --card: #fffaf2;
-  --ink: #2a1d16;
-  --muted: #7a6656;
-  --line: #e6d9c7;
-  --cacao: #6b3a24;
-  --leaf: #2f5d46;
-  --warn: #a4471f;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #1a1310;
-    --card: #231a15;
-    --ink: #f3e9dc;
-    --muted: #b49f8c;
-    --line: #3b2d24;
-    --cacao: #e0a27c;
-    --leaf: #8cc4a6;
-    --warn: #f0936a;
-  }
+  --stage: #0f0f10;
+  --panel: #19191b;
+  --fg: #f5f5f2;
+  --muted: #b8b8b2;
+  --line: #3a3a37;
+  --gold: #ffd24a;
+  --cobalt: #2433c8;
+  --mandarin: #ff7a45;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-card: var(--card);
-  --color-ink: var(--ink);
+  --color-stage: var(--stage);
+  --color-panel: var(--panel);
+  --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-cacao: var(--cacao);
-  --color-leaf: var(--leaf);
-  --color-warn: var(--warn);
+  --color-gold: var(--gold);
+  --color-cobalt: var(--cobalt);
+  --color-mandarin: var(--mandarin);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--stage);
+  color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@keyframes mascot-bob {
+  from {
+    transform: translateY(0) rotate(-1deg);
+  }
+  to {
+    transform: translateY(-9px) rotate(1.2deg);
+  }
+}
+
+.mascot {
+  animation: mascot-bob 2.8s ease-in-out infinite alternate;
+  transform-origin: 50% 85%;
+}
+
+.mascot-busy {
+  animation-duration: 0.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot {
+    animation: none;
+  }
 }

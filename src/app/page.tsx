@@ -29,6 +29,41 @@ const DEFAULT_MARKETS: Market[] = [
 
 type LogItem = { kind: "tool" | "result" | "note"; text: string; names?: string[] };
 
+// Wrapper colors for the market cards, cycled in order.
+const WRAPPERS = [
+  { bg: "#2433c8", fg: "#ffffff", sub: "#dde1ff" },
+  { bg: "#ff7a45", fg: "#141414", sub: "#2e2a27" },
+  { bg: "#ffd24a", fg: "#141414", sub: "#2e2a27" },
+];
+
+function TasteFacts({ references }: { references: MarketResult["references"] }) {
+  return (
+    <div className="rounded-md bg-white px-4 py-3.5 text-sm text-[#111111]">
+      <div className="border-b-8 border-[#111111] pb-1 font-display text-[22px] font-extrabold">Taste facts</div>
+      <div className="flex justify-between border-b border-[#111111] py-1.5 text-[11px] font-bold uppercase tracking-[0.06em]">
+        <span>From Qloo</span>
+        <span>Affinity</span>
+      </div>
+      {references.map((r, i) => (
+        <div
+          key={r.entity.id + r.phrase}
+          className={`py-1.5 ${i === references.length - 1 ? "border-b-4" : "border-b"} border-[#111111]`}
+        >
+          <div className="flex justify-between gap-3">
+            <span>
+              <b>{r.entity.name}</b>{" "}
+              <span className="text-[#55554f]">{r.entity.type.replace("urn:entity:", "")}</span>
+            </span>
+            <span>{r.entity.affinity !== null ? r.entity.affinity.toFixed(2) : "—"}</span>
+          </div>
+          <div className="text-xs text-[#3d3d39]">{r.why}</div>
+        </div>
+      ))}
+      <div className="pt-1.5 text-xs text-[#3d3d39]">Product facts stay as written; only the hooks change.</div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [product, setProduct] = useState(SAMPLE_PRODUCT);
   const [copy, setCopy] = useState(SAMPLE_COPY);
@@ -109,54 +144,107 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
-      <header className="mb-10 max-w-2xl">
-        <h1 className="font-display text-5xl tracking-tight text-cacao">Lengua Fina</h1>
-        <p className="mt-3 text-lg leading-relaxed text-muted">
-          Translation keeps the words and loses the references. Lengua Fina rewrites your product copy for each
-          market using the artists, films, books and brands that audience actually loves, according to Qloo&apos;s
-          taste data. Every reference it adds is traceable.
-        </p>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="font-display text-[26px] font-extrabold tracking-tight">
+          lengua<span className="text-gold">·</span>fina
+        </div>
+        <div className="text-[13px] text-muted">Every reference, traceable to Qloo.</div>
+      </div>
+
+      <header className="mt-10 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+        <div className="max-w-2xl">
+          <h1 className="font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
+            Your copy, read by three different rooms.
+          </h1>
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
+            Lengua Fina asks Qloo what each audience loves, drops the references that won&apos;t land, and
+            rewrites around the ones that will. Every swap comes with its taste facts.
+          </p>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/mascot/tamandua.svg"
+          alt=""
+          className={`mascot h-48 w-auto shrink-0 sm:h-60 ${running ? "mascot-busy" : ""}`}
+        />
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <section className="space-y-6">
-          <label className="block">
-            <span className="text-sm font-medium">Product</span>
-            <input
-              value={product}
-              onChange={(e) => setProduct(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-cacao"
-            />
-          </label>
+      <section className="mt-10 rounded-[28px] border border-line px-6 py-5 sm:px-8">
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div>
+            <div className="font-display text-4xl font-extrabold text-gold">76%</div>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              of online shoppers prefer products with information in their own language
+            </p>
+          </div>
+          <div>
+            <div className="font-display text-4xl font-extrabold text-gold">40%</div>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              will never buy from a website in another language
+            </p>
+          </div>
+          <div>
+            <div className="font-display text-4xl font-extrabold text-gold">0</div>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              references the agent can invent — it can only cite what Qloo returned in the run
+            </p>
+          </div>
+        </div>
+        <p className="mt-4 text-xs text-muted">
+          Language figures:{" "}
+          <a
+            href="https://csa-research.com/Blogs-Events/CSA-in-the-Media/Press-Releases/Consumers-Prefer-their-Own-Language"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-gold"
+          >
+            CSA Research, &ldquo;Can&apos;t Read, Won&apos;t Buy&rdquo;
+          </a>{" "}
+          — 8,709 consumers, 29 countries.
+        </p>
+      </section>
 
-          <label className="block">
-            <span className="text-sm font-medium">Source copy</span>
-            <textarea
-              value={copy}
-              onChange={(e) => setCopy(e.target.value)}
-              rows={7}
-              className="mt-1.5 w-full rounded-lg border border-line bg-card px-3 py-2 leading-relaxed outline-none focus:border-cacao"
-            />
-          </label>
+      <section className="mt-6 rounded-[28px] border border-line bg-panel p-5 sm:p-8">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="space-y-6">
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Product</span>
+              <input
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-line bg-stage px-3.5 py-2.5 outline-none focus:border-gold"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Source copy</span>
+              <textarea
+                value={copy}
+                onChange={(e) => setCopy(e.target.value)}
+                rows={8}
+                className="mt-2 w-full rounded-xl border border-line bg-stage px-3.5 py-2.5 leading-relaxed outline-none focus:border-gold"
+              />
+            </label>
+          </div>
 
           <div>
-            <span className="text-sm font-medium">Markets</span>
-            <div className="mt-1.5 space-y-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Markets</span>
+            <div className="mt-2 space-y-3">
               {markets.map((m, i) => (
-                <div key={i} className="rounded-lg border border-line bg-card p-3">
+                <div key={i} className="rounded-xl border border-line bg-stage p-3">
                   <div className="flex gap-2">
                     <input
                       value={m.city}
                       onChange={(e) => updateMarket(i, { city: e.target.value })}
                       placeholder="City"
-                      className="w-1/2 rounded-md border border-line bg-paper px-2 py-1.5 outline-none focus:border-cacao"
+                      className="w-1/2 rounded-lg border border-line bg-panel px-2.5 py-1.5 outline-none focus:border-gold"
                     />
                     <input
                       value={m.language}
                       onChange={(e) => updateMarket(i, { language: e.target.value })}
                       placeholder="Language"
-                      className="w-1/2 rounded-md border border-line bg-paper px-2 py-1.5 outline-none focus:border-cacao"
+                      className="w-1/2 rounded-lg border border-line bg-panel px-2.5 py-1.5 outline-none focus:border-gold"
                     />
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -165,10 +253,10 @@ export default function Home() {
                         key={a.value}
                         type="button"
                         onClick={() => toggleAge(i, a.value)}
-                        className={`rounded-full border px-2.5 py-0.5 text-xs ${
+                        className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                           m.ages.includes(a.value)
-                            ? "border-cacao bg-cacao text-paper"
-                            : "border-line text-muted hover:border-cacao"
+                            ? "border-gold bg-gold text-stage"
+                            : "border-line text-muted hover:border-gold"
                         }`}
                       >
                         {a.label}
@@ -178,7 +266,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => removeMarket(i)}
-                        className="ml-auto text-xs text-muted underline-offset-2 hover:text-warn hover:underline"
+                        className="ml-auto text-xs text-muted underline-offset-2 hover:text-mandarin hover:underline"
                       >
                         Remove
                       </button>
@@ -191,128 +279,136 @@ export default function Home() {
               <button
                 type="button"
                 onClick={addMarket}
-                className="mt-2 text-sm text-cacao underline-offset-2 hover:underline"
+                className="mt-2 text-sm text-gold underline-offset-2 hover:underline"
               >
                 Add a market
               </button>
             )}
           </div>
+        </div>
 
-          <button
-            onClick={run}
-            disabled={running}
-            className="w-full rounded-lg bg-cacao px-4 py-3 font-medium text-paper transition hover:opacity-90 disabled:opacity-60"
-          >
-            {running ? "Reading the room…" : "Transcreate"}
-          </button>
-        </section>
+        <button
+          onClick={run}
+          disabled={running}
+          className="mt-8 w-full rounded-full bg-fg px-6 py-4 font-display text-lg font-bold text-stage transition hover:bg-gold disabled:opacity-60"
+        >
+          {running ? "Reading the room…" : "Transcreate"}
+        </button>
+      </section>
 
-        <section className="min-w-0 space-y-6">
-          {!running && !error && log.length === 0 && !results && (
-            <div className="rounded-lg border border-dashed border-line p-6">
-              <h2 className="font-display text-2xl text-cacao">How it works</h2>
-              <ol className="mt-4 space-y-4 text-muted">
-                <li>
-                  <span className="font-medium text-ink">1. It reads the room.</span> For each market, the agent asks
-                  Qloo which artists, films, books, brands and places that audience has affinity for.
-                </li>
-                <li>
-                  <span className="font-medium text-ink">2. It tests your references.</span> It checks whether the
-                  comparisons in your copy rank with that audience, and flags the ones that won&apos;t land.
-                </li>
-                <li>
-                  <span className="font-medium text-ink">3. It rewrites, with receipts.</span> Product facts stay
-                  the same; the hooks change. Every new reference comes from Qloo data and shows its source. The agent
-                  can&apos;t submit a reference Qloo didn&apos;t return.
-                </li>
-              </ol>
+      {!running && !error && log.length === 0 && !results && (
+        <section className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              n: "1",
+              title: "It reads the room.",
+              body: "For each market, the agent asks Qloo which artists, films, books, brands and places that audience has affinity for.",
+            },
+            {
+              n: "2",
+              title: "It tests your references.",
+              body: "Comparisons in your copy that don't rank with that audience get flagged and dropped.",
+            },
+            {
+              n: "3",
+              title: "It rewrites, with receipts.",
+              body: "Product facts stay as written; the hooks change. Every new reference comes from Qloo with its affinity score. The agent can't submit one Qloo didn't return.",
+            },
+          ].map((s) => (
+            <div key={s.n} className="rounded-[28px] border border-line p-6">
+              <div className="font-display text-3xl font-extrabold text-gold">{s.n}</div>
+              <h2 className="mt-3 font-semibold">{s.title}</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.body}</p>
             </div>
-          )}
-
-          {error && (
-            <p className="rounded-lg border border-warn/40 bg-card px-4 py-3 text-warn">{error}</p>
-          )}
-
-          {log.length > 0 && (
-            <div className="rounded-lg border border-line bg-card p-4">
-              <h2 className="mb-3 text-sm font-medium text-muted">What the agent is doing</h2>
-              <ol className="max-h-80 space-y-2 overflow-y-auto text-sm">
-                {log.map((item, i) => (
-                  <li key={i} className={item.kind === "note" ? "italic text-muted" : ""}>
-                    {item.kind === "result" ? (
-                      <span className="text-leaf">
-                        ↳ {item.names?.length ? item.names.join(" · ") : "no results"}
-                      </span>
-                    ) : (
-                      item.text
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {results?.map((m) => (
-            <article key={m.city} className="rounded-lg border border-line bg-card p-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-2xl text-cacao">
-                  {m.city} <span className="text-base text-muted">· {m.language}</span>
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => copyText(m.city, m.copy)}
-                  className="shrink-0 text-sm text-muted underline-offset-2 hover:text-cacao hover:underline"
-                >
-                  {copied === m.city ? "Copied" : "Copy"}
-                </button>
-              </div>
-              <p className="mt-3 whitespace-pre-line leading-relaxed">{m.copy}</p>
-              {m.backTranslation && (
-                <p className="mt-3 border-l-2 border-line pl-3 text-sm leading-relaxed text-muted">
-                  {m.backTranslation}
-                </p>
-              )}
-
-              {m.references.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted">References, from Qloo</h3>
-                  <ul className="mt-2 space-y-2">
-                    {m.references.map((r) => (
-                      <li key={r.entity.id + r.phrase} className="text-sm">
-                        <span className="font-medium text-leaf">{r.entity.name}</span>{" "}
-                        <span className="text-muted">
-                          ({r.entity.type.replace("urn:entity:", "")}
-                          {r.entity.affinity !== null && `, affinity ${r.entity.affinity.toFixed(2)}`})
-                        </span>
-                        <span className="block text-muted">{r.why}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {m.flags.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted">Won&apos;t land here</h3>
-                  <ul className="mt-2 space-y-2">
-                    {m.flags.map((f, i) => (
-                      <li key={i} className="text-sm">
-                        <span className="font-medium text-warn">“{f.original}”</span>{" "}
-                        <span>{f.problem}</span>
-                        <span className="block text-muted">{f.evidence}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </article>
           ))}
         </section>
-      </div>
+      )}
+
+      {error && (
+        <p className="mt-8 rounded-xl border border-mandarin/50 bg-panel px-4 py-3 text-mandarin">{error}</p>
+      )}
+
+      {log.length > 0 && (
+        <section className="mt-8 rounded-[28px] border border-line bg-panel p-5 sm:p-6">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">The tasting notebook</h2>
+          <ol className="mt-3 max-h-80 space-y-2 overflow-y-auto text-sm">
+            {log.map((item, i) => (
+              <li key={i} className={item.kind === "note" ? "italic text-muted" : ""}>
+                {item.kind === "result" ? (
+                  <span className="text-gold">↳ {item.names?.length ? item.names.join(" · ") : "no results"}</span>
+                ) : (
+                  item.text
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {results && results.length > 0 && (
+        <section className="mt-12">
+          <h2 className="font-display text-4xl font-extrabold tracking-tight">El veredicto</h2>
+          <div className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {results.map((m, i) => {
+              const w = WRAPPERS[i % WRAPPERS.length];
+              return (
+                <article
+                  key={m.city}
+                  className="flex flex-col gap-5 rounded-[28px] p-6"
+                  style={{ background: w.bg, color: w.fg }}
+                >
+                  <div className="flex justify-between gap-3 text-[13px] font-semibold uppercase tracking-[0.08em]">
+                    <span>{m.city}</span>
+                    <span>{m.language}</span>
+                  </div>
+                  <p className="whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
+                  {m.backTranslation && (
+                    <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
+                      {m.backTranslation}
+                    </p>
+                  )}
+
+                  {m.flags.length > 0 && (
+                    <div className="text-[15px]">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="text-xs font-semibold uppercase tracking-[0.08em]">Dropped</span>
+                        {m.flags.map((f, j) => (
+                          <span key={j} className="line-through decoration-2">
+                            {f.original}
+                          </span>
+                        ))}
+                      </div>
+                      {m.flags.map((f, j) => (
+                        <p key={j} className="mt-1.5 text-sm leading-snug" style={{ color: w.sub }}>
+                          {f.problem} {f.evidence}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {m.references.length > 0 && <TasteFacts references={m.references} />}
+
+                  <button
+                    type="button"
+                    onClick={() => copyText(m.city, m.copy)}
+                    className="self-start rounded-full border border-current px-5 py-2 text-[15px] font-semibold"
+                  >
+                    {copied === m.city ? "Copied" : "Copy"}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <p className="mt-6 text-sm text-muted">
+            Every reference above was returned by Qloo during this run. The agent can&apos;t submit one that
+            wasn&apos;t.
+          </p>
+        </section>
+      )}
 
       <Waitlist />
 
-      <footer className="mt-10 text-sm text-muted">
+      <footer className="mt-12 border-t border-line pt-6 text-sm text-muted">
         Built in Bocas del Toro, Panama, for the Qloo Agentic Hackathon. Taste data by Qloo.
       </footer>
     </main>
