@@ -36,6 +36,53 @@ const WRAPPERS = [
   { bg: "#ffd24a", fg: "#141414", sub: "#2e2a27" },
 ];
 
+// Sample verdict shown before the first run. [Brackets] stand in for real
+// Qloo results — never invented values.
+const SAMPLE_VERDICT = [
+  {
+    city: "Tokyo",
+    meta: "30–44 · 日本語",
+    headline: "[Qloo参照]のようになめらかで、もっと深く、野性的。",
+    sub: "Smooth as [Qloo reference], but deeper and wilder.",
+    verb: "Dropped",
+    refs: ["Brussels praline", "café au lait"],
+    struck: true,
+    rows: [
+      ["[Qloo artist]", "artist"],
+      ["[Qloo film]", "film"],
+      ["[Qloo brand]", "brand"],
+    ],
+  },
+  {
+    city: "Brussels",
+    meta: "30–44 · Français",
+    headline: "Lisse comme une praline de Bruxelles, mais plus sombre et plus sauvage.",
+    sub: "The original reference already lands here, so it stays.",
+    verb: "Kept",
+    refs: ["Brussels praline"],
+    struck: false,
+    rows: [
+      ["[Qloo artist]", "artist"],
+      ["[Qloo book]", "book"],
+      ["[Qloo place]", "place"],
+    ],
+  },
+  {
+    city: "Austin",
+    meta: "30–44 · English",
+    headline: "Smooth, dark and a little wild. Break off a square after dinner with [Qloo reference].",
+    sub: "Port swapped for something this audience already loves.",
+    verb: "Dropped",
+    refs: ["a glass of Port"],
+    struck: true,
+    rows: [
+      ["[Qloo artist]", "artist"],
+      ["[Qloo TV show]", "TV show"],
+      ["[Qloo brand]", "brand"],
+    ],
+  },
+];
+
 function TasteFacts({ references }: { references: MarketResult["references"] }) {
   return (
     <div className="rounded-md bg-white px-4 py-3.5 text-sm text-[#111111]">
@@ -321,6 +368,75 @@ export default function Home() {
               <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.body}</p>
             </div>
           ))}
+        </section>
+      )}
+
+      {!running && !error && log.length === 0 && !results && (
+        <section className="mt-12">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <h2 className="font-display text-4xl font-extrabold tracking-tight">El veredicto</h2>
+            <p className="text-[13px] text-muted">
+              Sample layout · [brackets] stand in for real Qloo results
+            </p>
+          </div>
+          <div className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {SAMPLE_VERDICT.map((m, i) => {
+              const w = WRAPPERS[i % WRAPPERS.length];
+              return (
+                <article
+                  key={m.city}
+                  className="flex flex-col gap-5 rounded-[28px] p-6"
+                  style={{ background: w.bg, color: w.fg }}
+                >
+                  <div className="flex justify-between gap-3 text-[13px] font-semibold uppercase tracking-[0.08em]">
+                    <span>{m.city}</span>
+                    <span>{m.meta}</span>
+                  </div>
+                  <p className="font-display text-2xl font-bold leading-[1.25]">{m.headline}</p>
+                  <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
+                    {m.sub}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px]">
+                    <span className="text-xs font-semibold uppercase tracking-[0.08em]">{m.verb}</span>
+                    {m.refs.map((r) => (
+                      <span key={r} className={m.struck ? "line-through decoration-2" : ""}>
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="rounded-md bg-white px-4 py-3.5 text-sm text-[#111111]">
+                    <div className="border-b-8 border-[#111111] pb-1 font-display text-[22px] font-extrabold">
+                      Taste facts
+                    </div>
+                    <div className="flex justify-between border-b border-[#111111] py-1.5 text-[11px] font-bold uppercase tracking-[0.06em]">
+                      <span>From Qloo</span>
+                      <span>Affinity</span>
+                    </div>
+                    {m.rows.map(([name, type], j) => (
+                      <div
+                        key={name}
+                        className={`flex justify-between gap-3 py-1.5 ${
+                          j === m.rows.length - 1 ? "border-b-4" : "border-b"
+                        } border-[#111111]`}
+                      >
+                        <span>
+                          <b>{name}</b> <span className="text-[#55554f]">{type}</span>
+                        </span>
+                        <span>[x.xx]</span>
+                      </div>
+                    ))}
+                    <div className="pt-1.5 text-xs text-[#3d3d39]">
+                      Product facts unchanged: 70%, six-day ferment, Bocas del Toro.
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <p className="mt-6 text-sm text-muted">
+            Run it and these fill in with real Qloo entities and affinities. The agent can&apos;t submit a
+            reference Qloo didn&apos;t return.
+          </p>
         </section>
       )}
 
