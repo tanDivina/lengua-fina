@@ -1,0 +1,407 @@
+// Saved runs of the real agent against the live Qloo and Claude APIs,
+// captured Oct 25 2026. Nothing here is invented: every reference and
+// affinity below was returned by Qloo during its run, and the grounding
+// check enforced that before the result was accepted.
+import type { MarketResult } from "@/lib/agent";
+import type { AgeRange } from "@/lib/qloo";
+
+export type Demo = {
+  id: string;
+  label: string;
+  product: string;
+  copy: string;
+  markets: { city: string; ages: AgeRange[]; language: string }[];
+  results: MarketResult[];
+};
+
+export const DEMO_RAN_AT = "Oct 25, 2026";
+
+export const DEMOS: Demo[] = [
+  {
+    "id": "chocolate",
+    "label": "70% dark chocolate",
+    "product": "70% single-origin dark chocolate bar, cacao from Bocas del Toro, Panama",
+    "copy": "Grown on a small island farm in Bocas del Toro and fermented for six days in wooden boxes, this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a Brussels praline, but darker and wilder. Break off a square with your Sunday café au lait, or pair it with a glass of Port after dinner.",
+    "markets": [
+      {
+        "city": "Tokyo",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Japanese"
+      },
+      {
+        "city": "Brussels",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "French"
+      },
+      {
+        "city": "Austin",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "English"
+      }
+    ],
+    "results": [
+      {
+        "city": "Tokyo",
+        "language": "Japanese",
+        "copy": "パナマ、ボカス・デル・トロ。小さな島の農園で育ったカカオを、木箱で6日間じっくり発酵させました。カカオ70%のこのバーに広がるのは、赤い果実とはちみつ、そしてほのかなタバコの香り。口どけはなめらかなのに、奥には深く野性的な表情があります。日曜の朝は、CAMELBACKで買ってきたエスプレッソとひとかけ。夕食のあとは、ポートワインをグラスに一杯どうぞ。",
+        "backTranslation": "Bocas del Toro, Panama. Cacao grown on a small island farm, slowly fermented for six days in wooden boxes. In this 70% cacao bar you'll find red fruit, honey and a faint hint of tobacco. It melts smoothly, yet underneath there is a deep, wild character. On Sunday morning, have a square with an espresso picked up from CAMELBACK. After dinner, try it with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "The Belgian praline comparison doesn't connect with this audience, so I removed it and kept the smooth-but-wild contrast without it.",
+            "evidence": "check_reference: Neuhaus (brand, used as the stand-in for 'Brussels praline') is not in the top 100 brands for Tokyo 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "your Sunday café au lait",
+            "problem": "A generic French breakfast drink with no local hook. I replaced it with a Tokyo espresso spot this audience ranks highly.",
+            "evidence": "check_reference: CAMELBACK sandwich&espresso ranks #13 of 100 places for Tokyo 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "a glass of Port",
+            "problem": "I kept this as a plain pairing suggestion, but its appeal is unverified: Qloo has no entity for Port wine as a drink, so I couldn't check it.",
+            "evidence": "find_entity 'Port wine' and 'Taylor's Port' returned only unrelated bars, restaurants and sports clubs, so check_reference couldn't be run."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "CAMELBACKで買ってきたエスプレッソ",
+            "why": "CAMELBACK sandwich&espresso came up in market_taste for Tokyo 30–44s with a specialty-coffee signal, and check_reference ranks it #13 of 100 places for this audience.",
+            "entity": {
+              "id": "EFE77A29-9053-4C50-A8AB-3958E22DA5D9",
+              "name": "CAMELBACK sandwich&espresso",
+              "type": "urn:entity:place",
+              "affinity": 0.9913445594131566
+            }
+          }
+        ]
+      },
+      {
+        "city": "Brussels",
+        "language": "French",
+        "copy": "Cultivé dans une petite ferme insulaire de Bocas del Toro, au Panama, puis fermenté six jours en caisses de bois, ce 70 % dévoile des notes de fruits rouges, de miel et une pointe de tabac. En bouche, il est fondant, mais plus sombre et plus sauvage que ce qu'on attend. Un carré avec le café au lait du dimanche, Tamino en fond sonore ; ou, après le dîner, avec un verre de porto.",
+        "backTranslation": "Grown on a small island farm in Bocas del Toro, Panama, then fermented for six days in wooden boxes, this 70% reveals notes of red fruit, honey and a hint of tobacco. In the mouth it melts smoothly, but it's darker and wilder than you'd expect. A square with your Sunday café au lait, with Tamino playing in the background; or, after dinner, with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "Comparing the bar to the city's own praline invites a contest with local chocolate, and the praline reference doesn't rank here. I rewrote the line as 'smooth, but darker and wilder than you'd expect'.",
+            "evidence": "check_reference: Neuhaus (brand, used as the stand-in for 'Brussels praline') is not in the top 100 brands for Brussels 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "a glass of Port",
+            "problem": "Kept as a pairing suggestion, but unverified: Qloo has no entity for Port wine as a drink.",
+            "evidence": "find_entity 'Port wine' and 'Taylor's Port' returned only unrelated bars, restaurants and sports clubs, so check_reference couldn't be run."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Tamino en fond sonore",
+            "why": "Tamino appeared in market_taste for Brussels 30–44s with a dark-chocolate signal (tags: soulful, atmospheric), and check_reference ranks him #6 of 100 artists for this audience.",
+            "entity": {
+              "id": "1004A62C-76AF-41FB-996C-82247B275406",
+              "name": "Tamino",
+              "type": "urn:entity:artist",
+              "affinity": 0.9918177336391403
+            }
+          }
+        ]
+      },
+      {
+        "city": "Austin",
+        "language": "English",
+        "copy": "Grown on a small island farm in Bocas del Toro, Panama, and fermented for six days in wooden boxes, this 70% bar tastes of red fruit, honey and a hint of tobacco. It goes down smooth, then shows a darker, wilder side, more Heartless Bastards than easy listening. Break off a square with your Sunday-morning Chameleon Coffee, or pair it with a glass of Port after dinner.",
+        "backTranslation": null,
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "The Belgian praline comparison doesn't land with this audience, so I swapped the 'darker and wilder' contrast to a local band.",
+            "evidence": "check_reference: Neuhaus (brand, used as the stand-in for 'Brussels praline') is not in the top 100 brands for Austin 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "your Sunday café au lait",
+            "problem": "A generic French breakfast drink with no local hook. I replaced it with a coffee brand this audience ranks highly.",
+            "evidence": "check_reference: Chameleon Coffee ranks #7 of 100 brands for Austin 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "a glass of Port",
+            "problem": "Kept as a pairing suggestion, but unverified: Qloo has no entity for Port wine as a drink.",
+            "evidence": "find_entity 'Port wine' and 'Taylor's Port' returned only unrelated bars, restaurants and sports clubs, so check_reference couldn't be run."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Sunday-morning Chameleon Coffee",
+            "why": "Chameleon Coffee came up in market_taste for Austin 30–44s with a dark-chocolate signal, and check_reference ranks it #7 of 100 brands for this audience.",
+            "entity": {
+              "id": "B9B21763-4833-4F79-ABBD-6291EDB0EAB5",
+              "name": "Chameleon Coffee",
+              "type": "urn:entity:brand",
+              "affinity": 0.9763645854995314
+            }
+          },
+          {
+            "phrase": "more Heartless Bastards than easy listening",
+            "why": "Heartless Bastards (tags: soulful, raw emotive) appeared in market_taste for Austin 30–44s with a dark-chocolate signal, and check_reference ranks them #3 of 100 artists for this audience.",
+            "entity": {
+              "id": "030338DB-D035-4355-A2F4-EAF61B6B90C8",
+              "name": "Heartless Bastards",
+              "type": "urn:entity:artist",
+              "affinity": 0.9925811235588174
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tour",
+    "label": "Island farm tour",
+    "product": "Half-day cacao farm tour on a small island, Bocas del Toro, Panama",
+    "copy": "Paddle past the mangroves to a farm that has grown cacao under the same shade trees for thirty years. We crack pods, taste the pulp straight from the seed, and roast a small batch over a wood fire. If your idea of a good morning is a Kew Gardens greenhouse or a slow episode of Chef's Table, this is that, with mud. Wear shoes you do not love.",
+    "markets": [
+      {
+        "city": "Berlin",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "German"
+      },
+      {
+        "city": "Seoul",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Korean"
+      },
+      {
+        "city": "New York",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "English"
+      }
+    ],
+    "results": [
+      {
+        "city": "Berlin",
+        "language": "German",
+        "copy": "Wir paddeln an den Mangroven vorbei zu einer Farm, auf der seit dreißig Jahren Kakao unter denselben Schattenbäumen wächst. Dort brechen wir Kakaofrüchte auf, probieren das Fruchtfleisch direkt vom Samen und rösten eine kleine Charge über dem Holzfeuer. Wenn du nach einer Folge „Getting Curious“ jedes Mal mehr wissen willst als vorher, ist dieser Vormittag genau das, nur mit Matsch. Zieh Schuhe an, an denen du nicht hängst.",
+        "backTranslation": "We paddle past the mangroves to a farm where cacao has grown under the same shade trees for thirty years. There we break open cacao pods, taste the pulp straight from the seed, and roast a small batch over the wood fire. If you come away from an episode of 'Getting Curious' wanting to know more every time, this morning is exactly that, just with mud. Wear shoes you're not attached to.",
+        "flags": [
+          {
+            "original": "Kew Gardens greenhouse",
+            "problem": "A London botanic garden that this Berlin audience doesn't show affinity for. Berlin's own Britzer Garten didn't rank either, so the garden comparison was dropped.",
+            "evidence": "check_reference: Royal Botanic Gardens, Kew is not in the top 100 places for Berlin 30–44; Britzer Garten is also not in the top 100."
+          },
+          {
+            "original": "a slow episode of Chef's Table",
+            "problem": "This show doesn't rank for this audience, so the hook would fall flat.",
+            "evidence": "check_reference: Chef's Table is not in the top 100 tv_shows for Berlin 30–44."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "einer Folge „Getting Curious“",
+            "why": "Getting Curious with Jonathan Van Ness was the top podcast returned by market_taste for Berlin 30–44 (tagged Education, Society & Culture), and its TV version also appeared in Berlin's TV list.",
+            "entity": {
+              "id": "ED9D4C2F-37B4-476F-B3DE-5F5EEB95E859",
+              "name": "Getting Curious with Jonathan Van Ness",
+              "type": "urn:entity:podcast",
+              "affinity": 0.9849239060107498
+            }
+          }
+        ]
+      },
+      {
+        "city": "Seoul",
+        "language": "Korean",
+        "copy": "노를 저어 맹그로브 숲을 지나면, 30년 동안 같은 그늘나무 아래에서 카카오를 길러 온 농장에 닿습니다. 카카오 열매를 직접 쪼개고, 씨앗에 붙은 과육을 그 자리에서 맛보고, 장작불에 조금씩 볶아 봅니다. ‘서진이네’를 보면서 먼 곳의 부엌과 식탁에 마음이 갔다면, 바로 그 아침입니다. 진흙이 좀 묻을 뿐이에요. 아끼는 신발은 두고 오세요.",
+        "backTranslation": "Paddle past the mangroves and you reach a farm that has grown cacao under the same shade trees for thirty years. We crack the cacao pods ourselves, taste the pulp clinging to the seed right there, and roast a small batch over a wood fire. If watching 'Jinny's Kitchen' made your heart go out to a faraway kitchen and table, this is that morning. There's just a bit of mud. Leave the shoes you love at home.",
+        "flags": [
+          {
+            "original": "Kew Gardens greenhouse",
+            "problem": "This London garden doesn't rank for this audience. Seoul Botanic Park didn't rank either, so the garden comparison was dropped.",
+            "evidence": "check_reference: Royal Botanic Gardens, Kew is not in the top 100 places for Seoul 30–44; Seoul Botanic Park is also not in the top 100."
+          },
+          {
+            "original": "a slow episode of Chef's Table",
+            "problem": "This show doesn't rank for this audience. It was replaced with a cooking show that does rank.",
+            "evidence": "check_reference: Chef's Table is not in the top 100 tv_shows for Seoul 30–44."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "‘서진이네’",
+            "why": "Jinny's Kitchen ranks #9 of 100 TV shows for Seoul 30–44 according to check_reference, and Qloo tags it Warm, Humble, Cuisine and Hospitality.",
+            "entity": {
+              "id": "6F301503-6B15-4939-9E73-42271C24D7D6",
+              "name": "Jinny's Kitchen",
+              "type": "urn:entity:tv_show",
+              "affinity": 0.9756186404694326
+            }
+          }
+        ]
+      },
+      {
+        "city": "New York",
+        "language": "English",
+        "copy": "Paddle past the mangroves to a farm that has grown cacao under the same shade trees for thirty years. We crack pods, taste the pulp straight from the seed, and roast a small batch over a wood fire. If Sweetbitter left you wanting to taste everything where it comes from, this is that morning, with mud. Wear shoes you do not love.",
+        "backTranslation": null,
+        "flags": [
+          {
+            "original": "Kew Gardens greenhouse",
+            "problem": "This London garden doesn't rank for this audience. Brooklyn Botanic Garden didn't rank either, so the garden comparison was dropped.",
+            "evidence": "check_reference: Royal Botanic Gardens, Kew is not in the top 100 places for New York 30–44; Brooklyn Botanic Garden is also not in the top 100."
+          },
+          {
+            "original": "a slow episode of Chef's Table",
+            "problem": "This show doesn't rank for this audience, even in New York.",
+            "evidence": "check_reference: Chef's Table is not in the top 100 tv_shows for New York 30–44."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Sweetbitter",
+            "why": "Sweetbitter was the top TV show returned by market_taste for New York 30–44, tagged Thoughtful and Ambitious.",
+            "entity": {
+              "id": "FA338ACC-A10B-4B0B-BA5A-772F7E6E5B2D",
+              "name": "Sweetbitter",
+              "type": "urn:entity:tv_show",
+              "affinity": 0.9824033384274705
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "balm",
+    "label": "Cacao-butter lip balm",
+    "product": "Cacao-butter lip balm, small batch, Bocas del Toro, Panama",
+    "copy": "The cacao butter in this balm is pressed on the farm from the same beans as our 70% bar. It smells faintly of chocolate, goes on clean, and holds up in real heat. Think French pharmacy classic, Nuxe rather than lip gloss. Toss it in your bag next to your Moleskine and forget about it until you need it.",
+    "markets": [
+      {
+        "city": "Paris",
+        "ages": [
+          "25_to_29",
+          "30_to_34"
+        ],
+        "language": "French"
+      },
+      {
+        "city": "Los Angeles",
+        "ages": [
+          "25_to_29",
+          "30_to_34"
+        ],
+        "language": "English"
+      },
+      {
+        "city": "Mexico City",
+        "ages": [
+          "25_to_29",
+          "30_to_34"
+        ],
+        "language": "Spanish"
+      }
+    ],
+    "results": [
+      {
+        "city": "Paris",
+        "language": "French",
+        "copy": "Le beurre de cacao de ce baume est pressé à la ferme, à Bocas del Toro, au Panama, à partir des mêmes fèves que notre tablette 70 %. Fabriqué en petite série. Il sent légèrement le chocolat, s'applique net et tient vraiment à la chaleur. Un classique de pharmacie : plus Nuxe que gloss. Glissez-le dans votre sac et oubliez-le jusqu'au moment où vous en aurez besoin.",
+        "backTranslation": "The cacao butter in this balm is pressed on the farm, in Bocas del Toro, Panama, from the same beans as our 70% bar. Made in small batches. It smells faintly of chocolate, goes on clean and really holds up in the heat. A pharmacy classic: more Nuxe than gloss. Slip it into your bag and forget about it until the moment you need it.",
+        "flags": [
+          {
+            "original": "Toss it in your bag next to your Moleskine",
+            "problem": "Moleskine doesn't register with this audience, so I dropped it and kept the 'forget it in your bag' line.",
+            "evidence": "check_reference: Moleskine is not in the top 100 brands for Paris, ages 25–34."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "plus Nuxe que gloss",
+            "why": "Nuxe ranks #68 of 100 brands for Parisians aged 25–34. It also came in second in this audience's skincare-brand list, with apothecary-inspired design tags.",
+            "entity": {
+              "id": "03B90ED7-5614-4D68-B713-26F3AC5FD79D",
+              "name": "nuxe",
+              "type": "urn:entity:brand",
+              "affinity": 0.9757499937029677
+            }
+          }
+        ]
+      },
+      {
+        "city": "Los Angeles",
+        "language": "English",
+        "copy": "The cacao butter in this balm is pressed right on the farm in Bocas del Toro, Panama, from the same beans as our 70% bar. Small batch. It smells faintly of chocolate, goes on clean, and holds up in real heat. It belongs on the shelf next to Herbivore Botanicals, not in the lip gloss aisle. Drop it in your bag and forget about it until you need it.",
+        "backTranslation": null,
+        "flags": [
+          {
+            "original": "Think French pharmacy classic, Nuxe rather than lip gloss",
+            "problem": "Nuxe doesn't register in LA, and the 'French pharmacy' idea depends on it. I replaced it with a skincare brand this audience does have affinity for.",
+            "evidence": "check_reference: nuxe is not in the top 100 brands for Los Angeles, ages 25–34."
+          },
+          {
+            "original": "Toss it in your bag next to your Moleskine",
+            "problem": "Moleskine doesn't register with this audience, so I dropped it.",
+            "evidence": "check_reference: Moleskine is not in the top 100 brands for Los Angeles, ages 25–34."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "next to Herbivore Botanicals, not in the lip gloss aisle",
+            "why": "Herbivore Botanicals is in the top skincare brands for LA 25–34s, tagged botanical and minimalist, which matches the plain, natural feel of the balm.",
+            "entity": {
+              "id": "83E998F3-9AD1-4CFE-95E4-7F69D62DD1C5",
+              "name": "Herbivore Botanicals",
+              "type": "urn:entity:brand",
+              "affinity": 0.9697762735586495
+            }
+          }
+        ]
+      },
+      {
+        "city": "Mexico City",
+        "language": "Spanish",
+        "copy": "La manteca de cacao de este bálsamo se prensa en la finca, en Bocas del Toro, Panamá, con los mismos granos de nuestra tableta de chocolate al 70 %. Hecho en lotes pequeños. Huele apenas a chocolate, se aplica limpio y aguanta el calor de verdad. Es más un básico de farmacia, en la línea de Neutrogena, que un gloss. Échalo a tu bolsa y olvídate de él hasta que lo necesites.",
+        "backTranslation": "The cacao butter in this balm is pressed on the farm, in Bocas del Toro, Panama, from the same beans as our 70% chocolate bar. Made in small batches. It smells just faintly of chocolate, goes on clean and truly holds up in the heat. It's more a pharmacy staple, along the lines of Neutrogena, than a gloss. Toss it in your bag and forget about it until you need it.",
+        "flags": [
+          {
+            "original": "Think French pharmacy classic, Nuxe rather than lip gloss",
+            "problem": "Nuxe doesn't register in Mexico City, so I kept the pharmacy framing and swapped in a brand this audience does have affinity for.",
+            "evidence": "check_reference: nuxe is not in the top 100 brands for Mexico City, ages 25–34."
+          },
+          {
+            "original": "Toss it in your bag next to your Moleskine",
+            "problem": "Moleskine doesn't register with this audience, so I dropped it.",
+            "evidence": "check_reference: Moleskine is not in the top 100 brands for Mexico City, ages 25–34."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "un básico de farmacia, en la línea de Neutrogena",
+            "why": "Neutrogena is in the top skincare brands for Mexico City 25–34s, and it keeps the 'pharmacy staple' framing without Nuxe, which doesn't register here.",
+            "entity": {
+              "id": "82ECA4DE-9055-4C7E-915F-6C39F81337FF",
+              "name": "Neutrogena",
+              "type": "urn:entity:brand",
+              "affinity": 0.9643172921525637
+            }
+          }
+        ]
+      }
+    ]
+  }
+];

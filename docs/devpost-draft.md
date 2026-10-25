@@ -20,7 +20,7 @@ You paste your product copy and pick up to three markets (city, age group, langu
 2. Checks the references in your original copy against each audience and flags the ones that won't land.
 3. Rewrites the copy per market. Product facts stay the same; the hooks change. Each new reference comes with its Qloo source and affinity.
 
-[Example from a real run: one flagged reference and one replacement, per market.]
+From a real run (Oct 25, saved on the site as the "70% dark chocolate" example): for **Tokyo**, "your Sunday café au lait" was flagged as a generic French breakfast drink with no local hook and became espresso from CAMELBACK sandwich&espresso, a Tokyo spot with 0.99 affinity for that audience. For **Austin**, "smooth as a Brussels praline" became "more Heartless Bastards than easy listening" (artist, 0.99), and the café au lait became Sunday-morning Chameleon Coffee (brand, 0.98). For **Brussels**, the agent dropped the praline comparison for a reason no translation tool would give you: comparing the bar to the city's own praline invites a contest with local chocolate — and brought in Tamino (0.99) as the after-dinner soundtrack instead. In all three markets it kept the Port pairing but marked it unverified, because Qloo has no entity for Port wine as a drink. It flags what it can't check rather than inventing support.
 
 ## How we built it
 

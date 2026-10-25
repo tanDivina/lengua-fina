@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { AgentEvent, MarketResult } from "@/lib/agent";
 import type { AgeRange } from "@/lib/qloo";
+import { DEMOS, DEMO_RAN_AT } from "@/data/demos";
 import { Waitlist } from "./waitlist";
 
 const AGE_OPTIONS: { value: AgeRange; label: string }[] = [
@@ -36,52 +37,6 @@ const WRAPPERS = [
   { bg: "#ffd24a", fg: "#141414", sub: "#2e2a27" },
 ];
 
-// Sample verdict shown before the first run. [Brackets] stand in for real
-// Qloo results — never invented values.
-const SAMPLE_VERDICT = [
-  {
-    city: "Tokyo",
-    meta: "30–44 · 日本語",
-    headline: "[Qloo参照]のようになめらかで、もっと深く、野性的。",
-    sub: "Smooth as [Qloo reference], but deeper and wilder.",
-    verb: "Dropped",
-    refs: ["Brussels praline", "café au lait"],
-    struck: true,
-    rows: [
-      ["[Qloo artist]", "artist"],
-      ["[Qloo film]", "film"],
-      ["[Qloo brand]", "brand"],
-    ],
-  },
-  {
-    city: "Brussels",
-    meta: "30–44 · Français",
-    headline: "Lisse comme une praline de Bruxelles, mais plus sombre et plus sauvage.",
-    sub: "The original reference already lands here, so it stays.",
-    verb: "Kept",
-    refs: ["Brussels praline"],
-    struck: false,
-    rows: [
-      ["[Qloo artist]", "artist"],
-      ["[Qloo book]", "book"],
-      ["[Qloo place]", "place"],
-    ],
-  },
-  {
-    city: "Austin",
-    meta: "30–44 · English",
-    headline: "Smooth, dark and a little wild. Break off a square after dinner with [Qloo reference].",
-    sub: "Port swapped for something this audience already loves.",
-    verb: "Dropped",
-    refs: ["a glass of Port"],
-    struck: true,
-    rows: [
-      ["[Qloo artist]", "artist"],
-      ["[Qloo TV show]", "TV show"],
-      ["[Qloo brand]", "brand"],
-    ],
-  },
-];
 
 function TasteFacts({ references }: { references: MarketResult["references"] }) {
   return (
@@ -111,6 +66,61 @@ function TasteFacts({ references }: { references: MarketResult["references"] }) 
   );
 }
 
+function VerdictCard({
+  m,
+  wrapper: w,
+  copied,
+  onCopy,
+}: {
+  m: MarketResult;
+  wrapper: (typeof WRAPPERS)[number];
+  copied: boolean;
+  onCopy: () => void;
+}) {
+  return (
+    <article className="flex flex-col gap-5 rounded-[28px] p-6" style={{ background: w.bg, color: w.fg }}>
+      <div className="flex justify-between gap-3 text-[13px] font-semibold uppercase tracking-[0.08em]">
+        <span>{m.city}</span>
+        <span>{m.language}</span>
+      </div>
+      <p className="whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
+      {m.backTranslation && (
+        <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
+          {m.backTranslation}
+        </p>
+      )}
+
+      {m.flags.length > 0 && (
+        <div className="text-[15px]">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-xs font-semibold uppercase tracking-[0.08em]">Dropped</span>
+            {m.flags.map((f, j) => (
+              <span key={j} className="line-through decoration-2">
+                {f.original}
+              </span>
+            ))}
+          </div>
+          {m.flags.map((f, j) => (
+            <p key={j} className="mt-1.5 text-sm leading-snug" style={{ color: w.sub }}>
+              {f.problem} {f.evidence}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {m.references.length > 0 && <TasteFacts references={m.references} />}
+
+      <button
+        type="button"
+        onClick={onCopy}
+        className="self-start rounded-full border border-current px-5 py-2 text-[15px] font-semibold"
+      >
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </article>
+  );
+}
+
 export default function Home() {
   const [product, setProduct] = useState(SAMPLE_PRODUCT);
   const [copy, setCopy] = useState(SAMPLE_COPY);
@@ -120,6 +130,16 @@ export default function Home() {
   const [results, setResults] = useState<MarketResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [demoId, setDemoId] = useState(DEMOS[0].id);
+
+  const demo = DEMOS.find((d) => d.id === demoId) ?? DEMOS[0];
+
+  function loadDemo() {
+    setProduct(demo.product);
+    setCopy(demo.copy);
+    setMarkets(demo.markets.map((m) => ({ ...m, ages: [...m.ages] })));
+    document.getElementById("workbench")?.scrollIntoView({ behavior: "smooth" });
+  }
 
   function updateMarket(i: number, patch: Partial<Market>) {
     setMarkets((ms) => ms.map((m, j) => (j === i ? { ...m, ...patch } : m)));
@@ -252,7 +272,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="mt-6 rounded-[28px] border border-line bg-panel p-5 sm:p-8">
+      <section id="workbench" className="mt-6 rounded-[28px] border border-line bg-panel p-5 sm:p-8">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-6">
             <label className="block">
@@ -375,67 +395,49 @@ export default function Home() {
         <section className="mt-12">
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <h2 className="font-display text-4xl font-extrabold tracking-tight">El veredicto</h2>
-            <p className="text-[13px] text-muted">
-              Sample layout · [brackets] stand in for real Qloo results
-            </p>
+            <p className="text-[13px] text-muted">Saved runs of the real agent · {DEMO_RAN_AT}</p>
           </div>
-          <div className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {SAMPLE_VERDICT.map((m, i) => {
-              const w = WRAPPERS[i % WRAPPERS.length];
-              return (
-                <article
-                  key={m.city}
-                  className="flex flex-col gap-5 rounded-[28px] p-6"
-                  style={{ background: w.bg, color: w.fg }}
-                >
-                  <div className="flex justify-between gap-3 text-[13px] font-semibold uppercase tracking-[0.08em]">
-                    <span>{m.city}</span>
-                    <span>{m.meta}</span>
-                  </div>
-                  <p className="font-display text-2xl font-bold leading-[1.25]">{m.headline}</p>
-                  <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
-                    {m.sub}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px]">
-                    <span className="text-xs font-semibold uppercase tracking-[0.08em]">{m.verb}</span>
-                    {m.refs.map((r) => (
-                      <span key={r} className={m.struck ? "line-through decoration-2" : ""}>
-                        {r}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="rounded-md bg-white px-4 py-3.5 text-sm text-[#111111]">
-                    <div className="border-b-8 border-[#111111] pb-1 font-display text-[22px] font-extrabold">
-                      Taste facts
-                    </div>
-                    <div className="flex justify-between border-b border-[#111111] py-1.5 text-[11px] font-bold uppercase tracking-[0.06em]">
-                      <span>From Qloo</span>
-                      <span>Affinity</span>
-                    </div>
-                    {m.rows.map(([name, type], j) => (
-                      <div
-                        key={name}
-                        className={`flex justify-between gap-3 py-1.5 ${
-                          j === m.rows.length - 1 ? "border-b-4" : "border-b"
-                        } border-[#111111]`}
-                      >
-                        <span>
-                          <b>{name}</b> <span className="text-[#55554f]">{type}</span>
-                        </span>
-                        <span>[x.xx]</span>
-                      </div>
-                    ))}
-                    <div className="pt-1.5 text-xs text-[#3d3d39]">
-                      Product facts unchanged: 70%, six-day ferment, Bocas del Toro.
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {DEMOS.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => setDemoId(d.id)}
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium ${
+                  d.id === demoId
+                    ? "border-gold bg-gold text-stage"
+                    : "border-line text-muted hover:border-gold"
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={loadDemo}
+              className="ml-auto text-sm text-gold underline-offset-2 hover:underline"
+            >
+              Load this example into the form
+            </button>
+          </div>
+          <p className="mt-4 max-w-2xl text-sm text-muted">
+            <span className="text-fg">{demo.product}.</span> &ldquo;{demo.copy.slice(0, 120)}…&rdquo;
+          </p>
+          <div className="mt-5 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {demo.results.map((m, i) => (
+              <VerdictCard
+                key={demo.id + m.city}
+                m={m}
+                wrapper={WRAPPERS[i % WRAPPERS.length]}
+                copied={copied === demo.id + m.city}
+                onCopy={() => copyText(demo.id + m.city, m.copy)}
+              />
+            ))}
           </div>
           <p className="mt-6 text-sm text-muted">
-            Run it and these fill in with real Qloo entities and affinities. The agent can&apos;t submit a
-            reference Qloo didn&apos;t return.
+            These are unedited results from real runs against Qloo and Claude, saved so you can read them
+            without waiting. Every reference was returned by Qloo during its run; the agent can&apos;t submit
+            one that wasn&apos;t. Load an example above and run it yourself for a fresh read.
           </p>
         </section>
       )}
@@ -465,55 +467,15 @@ export default function Home() {
         <section className="mt-12">
           <h2 className="font-display text-4xl font-extrabold tracking-tight">El veredicto</h2>
           <div className="mt-6 grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {results.map((m, i) => {
-              const w = WRAPPERS[i % WRAPPERS.length];
-              return (
-                <article
-                  key={m.city}
-                  className="flex flex-col gap-5 rounded-[28px] p-6"
-                  style={{ background: w.bg, color: w.fg }}
-                >
-                  <div className="flex justify-between gap-3 text-[13px] font-semibold uppercase tracking-[0.08em]">
-                    <span>{m.city}</span>
-                    <span>{m.language}</span>
-                  </div>
-                  <p className="whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
-                  {m.backTranslation && (
-                    <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
-                      {m.backTranslation}
-                    </p>
-                  )}
-
-                  {m.flags.length > 0 && (
-                    <div className="text-[15px]">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className="text-xs font-semibold uppercase tracking-[0.08em]">Dropped</span>
-                        {m.flags.map((f, j) => (
-                          <span key={j} className="line-through decoration-2">
-                            {f.original}
-                          </span>
-                        ))}
-                      </div>
-                      {m.flags.map((f, j) => (
-                        <p key={j} className="mt-1.5 text-sm leading-snug" style={{ color: w.sub }}>
-                          {f.problem} {f.evidence}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-
-                  {m.references.length > 0 && <TasteFacts references={m.references} />}
-
-                  <button
-                    type="button"
-                    onClick={() => copyText(m.city, m.copy)}
-                    className="self-start rounded-full border border-current px-5 py-2 text-[15px] font-semibold"
-                  >
-                    {copied === m.city ? "Copied" : "Copy"}
-                  </button>
-                </article>
-              );
-            })}
+            {results.map((m, i) => (
+              <VerdictCard
+                key={m.city}
+                m={m}
+                wrapper={WRAPPERS[i % WRAPPERS.length]}
+                copied={copied === m.city}
+                onCopy={() => copyText(m.city, m.copy)}
+              />
+            ))}
           </div>
           <p className="mt-6 text-sm text-muted">
             Every reference above was returned by Qloo during this run. The agent can&apos;t submit one that
