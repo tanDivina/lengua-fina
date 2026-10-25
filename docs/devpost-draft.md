@@ -10,6 +10,8 @@ I'm a Belgian translator living on an island in Bocas del Toro, Panama, where I 
 
 In Spanish, *lengua* means both language and tongue: the thing you speak with and the thing you taste with. That's the problem in one word.
 
+The language half is well measured: in [CSA Research's "Can't Read, Won't Buy" survey](https://csa-research.com/Blogs-Events/CSA-in-the-Media/Press-Releases/Consumers-Prefer-their-Own-Language) of 8,709 consumers in 29 countries, 76% prefer to buy products with information in their own language and 40% never buy from websites in other languages. Translation clears that bar. Lengua Fina is for what's left: copy that's in the right language but still reads foreign.
+
 ## What it does
 
 You paste your product copy and pick up to three markets (city, age group, language). Lengua Fina:
