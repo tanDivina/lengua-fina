@@ -33,6 +33,7 @@ From a real run (Oct 25, saved on the site as the "70% dark chocolate" example):
 
 - Qloo's "chocolate" tags turn out to be place categories (chocolate shops, chocolate artisans), and adding one as an interest signal didn't change the artist or brand insights at all. The product signal is a hint, not a filter — the market signal does the real work.
 - Not every entity type diverges: books overlap 33–48% across our three test markets. The agent has to know which lanes carry local taste.
+- Not every market has data. In the "Dutch, three ways" demo (same copy for Amsterdam, Willemstad and Antwerp), Qloo turned out to have no taste profile for a Willemstad audience — and the grounding rule held: the agent said so, reframed the copy around the shared Caribbean Sea, and shipped zero references for that market rather than inventing one. Meanwhile Amsterdam got "koffie verkeerd" and Maaike Ouboter, and Antwerp got "koffie met melk", "porto" and Tamino: one language, three rooms.
 
 [More from the first full agent runs: e.g. locality matching, keeping the agent from over-stuffing references.]
 

@@ -162,6 +162,119 @@ export const DEMOS: Demo[] = [
     ]
   },
   {
+    "id": "dutch",
+    "label": "Dutch, three ways",
+    "product": "70% single-origin dark chocolate bar, cacao from Bocas del Toro, Panama",
+    "copy": "Grown on a small island farm in Bocas del Toro and fermented for six days in wooden boxes, this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a Brussels praline, but darker and wilder. Break off a square with your Sunday café au lait, or pair it with a glass of Port after dinner.",
+    "markets": [
+      {
+        "city": "Amsterdam",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Dutch (Netherlands)"
+      },
+      {
+        "city": "Willemstad",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Dutch (ABC islands)"
+      },
+      {
+        "city": "Antwerp",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Dutch (Flemish)"
+      }
+    ],
+    "results": [
+      {
+        "city": "Amsterdam",
+        "language": "Dutch (Netherlands)",
+        "copy": "Deze reep van 70% komt van een kleine boerderij op een eiland in Bocas del Toro, Panama. De cacao fermenteert zes dagen in houten kisten en smaakt naar rood fruit, honing en een vleugje tabak. Zacht als een goede praline, maar donkerder en wilder. Breek een stukje af bij je koffie verkeerd op zondagochtend, met Maaike Ouboter op de achtergrond. Of bewaar hem voor na het eten, bij een glaasje port.",
+        "backTranslation": "This 70% bar comes from a small farm on an island in Bocas del Toro, Panama. The cacao ferments for six days in wooden boxes and tastes of red fruit, honey and a hint of tobacco. Smooth as a good praline, but darker and wilder. Break off a square with your café au lait on a Sunday morning, with Maaike Ouboter playing in the background. Or save it for after dinner, with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "The Brussels praline didn't resolve to a Qloo entity, and Neuhaus (the closest brand) does not rank for this audience. I dropped 'Brussels' and kept only a general praline comparison.",
+            "evidence": "check_reference: Neuhaus is not in the top 100 brands for ages 30–44 in Amsterdam. find_entity 'Brussels praline' returned only airports and venues."
+          },
+          {
+            "original": "a glass of Port after dinner",
+            "problem": "I couldn't check Port against this audience. I kept it as a general drink pairing, not a cultural reference.",
+            "evidence": "find_entity 'Port wine' and 'Taylor's Port' returned only unrelated bars and sports clubs, so there was nothing to run check_reference on."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "met Maaike Ouboter op de achtergrond",
+            "why": "She came back in Qloo's artist ranking for Amsterdam ages 30–44 who like dark chocolate, tagged as an emotional Dutch singer-songwriter, which fits a slow Sunday morning.",
+            "entity": {
+              "id": "137B0568-2248-4699-86B5-7DCC740DAA08",
+              "name": "Maaike Ouboter",
+              "type": "urn:entity:artist",
+              "affinity": 0.9057541755410985
+            }
+          }
+        ]
+      },
+      {
+        "city": "Willemstad",
+        "language": "Dutch (ABC islands)",
+        "copy": "Deze reep van 70% komt van een kleine boerderij op een eiland in Bocas del Toro, Panama, aan dezelfde Caribische Zee. De cacao fermenteert zes dagen in houten kisten en smaakt naar rood fruit, honing en een vleugje tabak. Zacht als een praline, maar donkerder en wilder. Breek een stukje af bij je zondagse koffie, of geniet ervan na het eten met een glaasje port.",
+        "backTranslation": "This 70% bar comes from a small farm on an island in Bocas del Toro, Panama, on the same Caribbean Sea. The cacao ferments for six days in wooden boxes and tastes of red fruit, honey and a hint of tobacco. Smooth as a praline, but darker and wilder. Break off a square with your Sunday coffee, or enjoy it after dinner with a glass of Port.",
+        "flags": [
+          {
+            "original": "All cultural references (Brussels praline, café au lait, Port)",
+            "problem": "Qloo has no taste data for this audience, so I couldn't swap in a local reference. Instead the copy is framed around the shared Caribbean Sea, a fact about where the bar comes from, and has no cultural references. A local reviewer should check it.",
+            "evidence": "market_taste for Willemstad ages 30–44 came back empty for brands (with the dark chocolate tag), artists and places. A query for 'Curaçao' (artists) was also empty. check_reference on Neuhaus reported 'not in the top 0 brands'."
+          },
+          {
+            "original": "Sunday café au lait",
+            "problem": "I changed this to a plain 'Sunday coffee' because I couldn't confirm that the French café au lait framing fits this audience.",
+            "evidence": "Qloo returned no entity or taste data for Willemstad."
+          }
+        ],
+        "references": []
+      },
+      {
+        "city": "Antwerp",
+        "language": "Dutch (Flemish)",
+        "copy": "Deze reep van 70% komt van een kleine eilandboerderij in Bocas del Toro, Panama. De cacao fermenteert zes dagen in houten kisten en smaakt naar rood fruit, honing en een tikkeltje tabak. Even zacht als een praline, maar donkerder en wilder, een beetje zoals een plaat van Tamino. Breek een stukje af bij je zondagse koffie met melk, of geniet ervan na het eten met een glaasje porto.",
+        "backTranslation": "This 70% bar comes from a small island farm in Bocas del Toro, Panama. The cacao ferments for six days in wooden boxes and tastes of red fruit, honey and a touch of tobacco. Just as smooth as a praline, but darker and wilder, a bit like a Tamino record. Break off a square with your Sunday coffee with milk, or enjoy it after dinner with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "The Brussels praline didn't resolve to a Qloo entity, and Neuhaus doesn't rank for this audience. I kept only a general praline comparison and let Tamino carry the 'darker and wilder' contrast.",
+            "evidence": "check_reference: Neuhaus is not in the top 100 brands for ages 30–44 in Antwerp."
+          },
+          {
+            "original": "a glass of Port after dinner",
+            "problem": "I couldn't check Port against this audience. I kept it as a general pairing and used the Belgian word 'porto'.",
+            "evidence": "find_entity for Port returned no matching entity, so there was nothing to run check_reference on."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "een beetje zoals een plaat van Tamino",
+            "why": "Tamino came back in Qloo's artist ranking for Antwerp ages 30–44 who like dark chocolate, with the tags 'Soulful', 'Atmospheric' and 'Passionate', which echo 'darker and wilder'.",
+            "entity": {
+              "id": "1004A62C-76AF-41FB-996C-82247B275406",
+              "name": "Tamino",
+              "type": "urn:entity:artist",
+              "affinity": 0.9059560198159116
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "tour",
     "label": "Island farm tour",
     "product": "Half-day cacao farm tour on a small island, Bocas del Toro, Panama",
