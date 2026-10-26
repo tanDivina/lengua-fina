@@ -1,6 +1,6 @@
 # Devpost draft: Lengua Fina
 
-> Draft. Lines in [brackets] need real results from a run with the Qloo key. Don't publish numbers or examples we haven't seen.
+> Everything below is from real runs — no invented numbers or examples.
 
 **Tagline:** Translation keeps the words. Lengua Fina keeps the meaning, using what each audience actually loves.
 
@@ -37,7 +37,7 @@ From a real run (Oct 25, saved on the site as the "70% dark chocolate" example):
 - Not every entity type diverges: books overlap 33–48% across our three test markets. The agent has to know which lanes carry local taste.
 - Not every market has data. In the "Dutch, three ways" demo (same copy for Amsterdam, Willemstad and Antwerp), Qloo turned out to have no taste profile for a Willemstad audience — and the grounding rule held: the agent said so, reframed the copy around the shared Caribbean Sea, and shipped zero references for that market rather than inventing one. Meanwhile Amsterdam got "koffie verkeerd" and Maaike Ouboter, and Antwerp got "koffie met melk", "porto" and Tamino: one language, three rooms.
 
-[More from the first full agent runs: e.g. locality matching, keeping the agent from over-stuffing references.]
+- A full three-market run takes two to three minutes of real API work. We stream every tool call and its results to the page as it happens (the "tasting notebook"), and the site ships with unedited saved runs so judges can read a verdict instantly — then load the same example and run it fresh.
 
 ## What we're proud of
 
