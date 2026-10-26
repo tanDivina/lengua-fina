@@ -14,6 +14,8 @@ The language half is well measured: in [CSA Research's "Can't Read, Won't Buy" s
 
 ## What it does
 
+Lengua Fina is a transcreation agent — the creative end of localization: product facts stay as written, and the cultural hooks are rewritten from what each audience measurably loves.
+
 You paste your product copy and pick up to three markets (city, age group, language). Lengua Fina:
 
 1. Asks Qloo which artists, films, books, brands and places each audience has affinity for, optionally narrowed by a product signal such as a chocolate tag.
