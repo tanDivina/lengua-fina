@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AgentEvent, MarketResult } from "@/lib/agent";
 import type { AgeRange } from "@/lib/qloo";
 import { DEMOS, DEMO_RAN_AT } from "@/data/demos";
@@ -137,6 +137,12 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [demoId, setDemoId] = useState(DEMOS[0].id);
+
+  // Deep link: /?demo=german opens that saved run.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("demo");
+    if (q && DEMOS.some((d) => d.id === q)) setDemoId(q);
+  }, []);
 
   const demo = DEMOS.find((d) => d.id === demoId) ?? DEMOS[0];
 
