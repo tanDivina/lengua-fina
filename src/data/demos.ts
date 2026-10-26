@@ -275,6 +275,145 @@ export const DEMOS: Demo[] = [
     ]
   },
   {
+    "id": "german",
+    "label": "German, three ways",
+    "product": "70% single-origin dark chocolate bar, cacao from Bocas del Toro, Panama",
+    "copy": "Grown on a small island farm in Bocas del Toro and fermented for six days in wooden boxes, this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a Brussels praline, but darker and wilder. Break off a square with your Sunday café au lait, or pair it with a glass of Port after dinner.",
+    "markets": [
+      {
+        "city": "Munich",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "German (Germany)"
+      },
+      {
+        "city": "Zurich",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "German (Switzerland)"
+      },
+      {
+        "city": "Vienna",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "German (Austria)"
+      }
+    ],
+    "results": [
+      {
+        "city": "Munich",
+        "language": "German (Germany)",
+        "copy": "Angebaut auf einer kleinen Inselfarm in Bocas del Toro, Panama, und sechs Tage lang in Holzkisten fermentiert: Diese 70%-Tafel schmeckt nach roten Früchten, Honig und einem Hauch Tabak. Zart wie eine Salzburger Praline, nur dunkler und wilder. Brich dir ein Stück zum Sonntagsmilchkaffee ab – oder genieß sie nach dem Abendessen mit einem Glas Portwein.",
+        "backTranslation": "Grown on a small island farm in Bocas del Toro, Panama, and fermented for six days in wooden boxes: this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a Salzburg praline, just darker and wilder. Break off a piece with your Sunday milky coffee – or enjoy it after dinner with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "Brussels doesn't resonate with this audience, so the comparison falls flat.",
+            "evidence": "check_reference: Brussels is not in the top 100 destinations for Munich 30–44. Neuhaus, a proxy for Brussels pralines, is also not in the top 100 brands."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Salzburger Praline",
+            "why": "Salzburg is the #2 destination for Munich 30–44 in market_taste, right after Munich itself, so a Salzburg praline is a local benchmark for smooth chocolate.",
+            "entity": {
+              "id": "FC2D1B6C-C1F7-49FC-A548-ACAA1D813B82",
+              "name": "Salzburg",
+              "type": "urn:entity:destination",
+              "affinity": 0.9260127507222549
+            }
+          },
+          {
+            "phrase": "Portwein",
+            "why": "check_reference ranks Porto #63 of 100 destinations for this audience, so the source copy's Port pairing works and stays.",
+            "entity": {
+              "id": "E1ACE365-5184-4298-A919-F4609A95490B",
+              "name": "Porto",
+              "type": "urn:entity:destination",
+              "affinity": 0.9203350492366098
+            }
+          }
+        ]
+      },
+      {
+        "city": "Zurich",
+        "language": "German (Switzerland)",
+        "copy": "Angebaut auf einer kleinen Inselfarm in Bocas del Toro, Panama, und sechs Tage lang in Holzkisten fermentiert: Diese 70%-Tafel schmeckt nach roten Früchten, Honig und einem Hauch Tabak. So zart wie eine Praline aus der Zürcher Confiserie, aber dunkler und wilder. Brich dir am Sonntag ein Stück zum Café crème ab, oder geniess sie nach dem Znacht mit einem Glas Portwein.",
+        "backTranslation": "Grown on a small island farm in Bocas del Toro, Panama, and fermented for six days in wooden boxes: this 70% bar tastes of red fruit, honey and a hint of tobacco. As smooth as a praline from a Zurich confectioner, but darker and wilder. Break off a piece with your Sunday café crème, or enjoy it after dinner (Znacht) with a glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "Brussels doesn't resonate with this audience. In a market with its own strong confectionery culture, pointing to Belgium also undersells local expectations.",
+            "evidence": "check_reference: Brussels is not in the top 100 destinations for Zurich 30–44. Neuhaus is not in the top 100 brands."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Praline aus der Zürcher Confiserie",
+            "why": "Zürich is the #1 destination for this audience in market_taste and is tagged 'Foodie Destination', so the city's own confectioners are the natural benchmark.",
+            "entity": {
+              "id": "684FE52E-569C-4A09-B728-A9D2B921AED8",
+              "name": "Zürich",
+              "type": "urn:entity:destination",
+              "affinity": 0.9244921674591381
+            }
+          },
+          {
+            "phrase": "Portwein",
+            "why": "check_reference ranks Porto #51 of 100 destinations for Zurich 30–44, so the Port pairing stays.",
+            "entity": {
+              "id": "E1ACE365-5184-4298-A919-F4609A95490B",
+              "name": "Porto",
+              "type": "urn:entity:destination",
+              "affinity": 0.9203350492366098
+            }
+          }
+        ]
+      },
+      {
+        "city": "Vienna",
+        "language": "German (Austria)",
+        "copy": "Angebaut auf einer kleinen Inselfarm in Bocas del Toro, Panama, und sechs Tage lang in Holzkisten fermentiert: Diese 70%-Tafel schmeckt nach roten Früchten, Honig und einem Hauch Tabak. Zart wie eine Praline vom Wiener Zuckerbäcker, nur dunkler und wilder. Brich dir am Sonntag ein Stück zur Melange ab – oder genieß sie nach dem Abendessen mit einem Glaserl Portwein.",
+        "backTranslation": "Grown on a small island farm in Bocas del Toro, Panama, and fermented for six days in wooden boxes: this 70% bar tastes of red fruit, honey and a hint of tobacco. Smooth as a praline from a Viennese confectioner, just darker and wilder. Break off a piece with your Sunday Melange – or enjoy it after dinner with a little glass of Port.",
+        "flags": [
+          {
+            "original": "Smooth as a Brussels praline",
+            "problem": "Brussels doesn't resonate with this audience, so the comparison falls flat.",
+            "evidence": "check_reference: Brussels is not in the top 100 destinations for Vienna 30–44. Neuhaus is not in the top 100 brands."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "Praline vom Wiener Zuckerbäcker",
+            "why": "Vienna is the top destination for this audience in market_taste and is tagged 'Foodie Destination', so a Viennese confectioner is a close, familiar benchmark.",
+            "entity": {
+              "id": "5DF2DCD1-6A55-41B1-ABA7-E315307BFC7F",
+              "name": "Vienna",
+              "type": "urn:entity:destination",
+              "affinity": 0.9262890068479818
+            }
+          },
+          {
+            "phrase": "Portwein",
+            "why": "check_reference ranks Porto #45 of 100 destinations for Vienna 30–44, its strongest showing of the three markets, so the Port pairing stays.",
+            "entity": {
+              "id": "E1ACE365-5184-4298-A919-F4609A95490B",
+              "name": "Porto",
+              "type": "urn:entity:destination",
+              "affinity": 0.9203350492366098
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "tour",
     "label": "Island farm tour",
     "product": "Half-day cacao farm tour on a small island, Bocas del Toro, Panama",
