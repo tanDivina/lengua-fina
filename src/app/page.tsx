@@ -85,9 +85,12 @@ function VerdictCard({
       </div>
       <p className="whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
       {m.backTranslation && (
-        <p className="text-[15px] leading-relaxed" style={{ color: w.sub }}>
-          {m.backTranslation}
-        </p>
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.08em]">Back-translation</div>
+          <p className="mt-1 text-[15px] leading-relaxed" style={{ color: w.sub }}>
+            {m.backTranslation}
+          </p>
+        </div>
       )}
 
       {m.flags.length > 0 && (
