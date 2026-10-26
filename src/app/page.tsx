@@ -28,6 +28,43 @@ const DEFAULT_MARKETS: Market[] = [
   { city: "Austin", ages: ["30_to_34", "35_to_44"], language: "English" },
 ];
 
+// One-click market suggestions. The language is what the agent writes in;
+// variants like "German (Austria)" steer regional usage.
+const SUGGESTED_MARKETS: { city: string; language: string }[] = [
+  { city: "Tokyo", language: "Japanese" },
+  { city: "Brussels", language: "French" },
+  { city: "Austin", language: "English" },
+  { city: "Paris", language: "French" },
+  { city: "Berlin", language: "German (Germany)" },
+  { city: "Munich", language: "German (Germany)" },
+  { city: "Zurich", language: "German (Switzerland)" },
+  { city: "Vienna", language: "German (Austria)" },
+  { city: "Amsterdam", language: "Dutch (Netherlands)" },
+  { city: "Antwerp", language: "Dutch (Flemish)" },
+  { city: "Seoul", language: "Korean" },
+  { city: "New York", language: "English" },
+  { city: "Los Angeles", language: "English" },
+  { city: "London", language: "English" },
+  { city: "Mexico City", language: "Spanish (Mexico)" },
+  { city: "Madrid", language: "Spanish (Spain)" },
+  { city: "Milan", language: "Italian" },
+  { city: "São Paulo", language: "Portuguese (Brazil)" },
+];
+
+const CITY_LANGUAGE = new Map(SUGGESTED_MARKETS.map((s) => [s.city.toLowerCase(), s.language]));
+
+const LANGUAGE_OPTIONS = [
+  ...new Set([
+    ...SUGGESTED_MARKETS.map((s) => s.language),
+    "French (Belgium)",
+    "Portuguese (Portugal)",
+    "Spanish",
+    "German",
+    "Dutch",
+    "Portuguese",
+  ]),
+];
+
 type LogItem = { kind: "tool" | "result" | "note"; text: string; names?: string[] };
 
 // Wrapper colors for the market cards, cycled in order.
@@ -159,6 +196,29 @@ export default function Home() {
 
   function addMarket() {
     setMarkets((ms) => [...ms, { city: "", ages: ["30_to_34", "35_to_44"], language: "English" }]);
+  }
+
+  // Chip click: fill the first empty slot, else add a slot, else swap the last one.
+  function quickAdd(s: { city: string; language: string }) {
+    setMarkets((ms) => {
+      const empty = ms.findIndex((m) => !m.city.trim());
+      if (empty >= 0)
+        return ms.map((m, j) => (j === empty ? { ...m, city: s.city, language: s.language } : m));
+      if (ms.length < 3)
+        return [...ms, { city: s.city, language: s.language, ages: ["30_to_34", "35_to_44"] }];
+      return ms.map((m, j) =>
+        j === ms.length - 1 ? { ...m, city: s.city, language: s.language } : m
+      );
+    });
+  }
+
+  // Typing or picking a known city fills in its language, unless the user
+  // already wrote a language of their own.
+  function updateCity(i: number, city: string) {
+    const auto = CITY_LANGUAGE.get(city.trim().toLowerCase());
+    const cur = markets[i].language;
+    const autofillable = !cur.trim() || LANGUAGE_OPTIONS.includes(cur);
+    updateMarket(i, auto && autofillable ? { city, language: auto } : { city });
   }
 
   function removeMarket(i: number) {
@@ -309,20 +369,49 @@ export default function Home() {
 
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Markets</span>
-            <div className="mt-2 space-y-3">
+            <datalist id="lf-cities">
+              {SUGGESTED_MARKETS.map((s) => (
+                <option key={s.city} value={s.city} />
+              ))}
+            </datalist>
+            <datalist id="lf-languages">
+              {LANGUAGE_OPTIONS.map((l) => (
+                <option key={l} value={l} />
+              ))}
+            </datalist>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {SUGGESTED_MARKETS.filter(
+                (s) => !markets.some((m) => m.city.trim().toLowerCase() === s.city.toLowerCase())
+              )
+                .slice(0, 8)
+                .map((s) => (
+                  <button
+                    key={s.city}
+                    type="button"
+                    onClick={() => quickAdd(s)}
+                    title={s.language}
+                    className="rounded-full border border-line px-2.5 py-0.5 text-xs text-muted hover:border-gold hover:text-fg"
+                  >
+                    + {s.city}
+                  </button>
+                ))}
+            </div>
+            <div className="mt-3 space-y-3">
               {markets.map((m, i) => (
                 <div key={i} className="rounded-xl border border-line bg-stage p-3">
                   <div className="flex gap-2">
                     <input
                       value={m.city}
-                      onChange={(e) => updateMarket(i, { city: e.target.value })}
+                      onChange={(e) => updateCity(i, e.target.value)}
                       placeholder="City"
+                      list="lf-cities"
                       className="w-1/2 rounded-lg border border-line bg-panel px-2.5 py-1.5 outline-none focus:border-gold"
                     />
                     <input
                       value={m.language}
                       onChange={(e) => updateMarket(i, { language: e.target.value })}
                       placeholder="Language"
+                      list="lf-languages"
                       className="w-1/2 rounded-lg border border-line bg-panel px-2.5 py-1.5 outline-none focus:border-gold"
                     />
                   </div>
