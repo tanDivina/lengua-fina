@@ -83,7 +83,10 @@ function VerdictCard({
         <span>{m.city}</span>
         <span>{m.language}</span>
       </div>
-      <p className="whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-[0.08em]">Transcreation</div>
+        <p className="mt-1.5 whitespace-pre-line font-display text-2xl font-bold leading-[1.25]">{m.copy}</p>
+      </div>
       {m.backTranslation && (
         <div>
           <div className="text-xs font-semibold uppercase tracking-[0.08em]">Back-translation</div>
