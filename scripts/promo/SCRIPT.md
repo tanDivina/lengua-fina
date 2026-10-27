@@ -51,7 +51,7 @@ Pick the clone first: listen to the three files in
 | n_run | Transcreate click | One click. The agent asks Qloo what each room actually loves — artists, films, books, brands, places — filtered by city and age. |
 | n_log | live tasting notebook | This is a live run, not a mockup. Every reference gets tested against Qloo's taste data, and every replacement must come from what Qloo returned in this very run. The agent cannot invent a reference. Grounded, or rejected. |
 | n_verdict | verdict cards | The verdict: three rewrites, each with its taste facts — the exact Qloo entities, and their affinity scores, behind every swap. |
-| n_brussels | Brussels card "Dropped" | And there's the worse: Brussels dropped my praline line entirely. Comparing my bar to the city's own praline starts a contest with local chocolate — a fight no translation tool would have seen. |
+| n_brussels | Brussels card "Dropped" | And there's the worse: Brussels dropped the praline line entirely. Comparing this chocolate to the city's own praline starts a contest with local chocolate — a fight no translation tool would have seen. |
 | n_honest | Willemstad demo card | And when Qloo has no data — Port wine, or a Willemstad audience — my agent says so. Flagged, never faked. |
 | n_outro | end card | Lengua Fina. Every reference, traceable to Qloo. Built for the Qloo Agentic Hackathon. |
 
