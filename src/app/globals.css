@@ -24,10 +24,67 @@
   --font-display: var(--font-display);
 }
 
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--stage);
   color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(255, 210, 74, 0.3);
+}
+
+/* Ambient light at the top of the stage; grain above everything to kill banding. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 55% at 50% -12%, rgba(255, 234, 191, 0.07), transparent 70%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero entrance: each .rise element staggers in via --rise. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+.rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise, 0s);
+}
+
+/* Below-the-fold sections fade up once on first view (page.tsx adds .is-in). */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal, 0s);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
 }
 
 @keyframes mascot-bob {
@@ -49,7 +106,16 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascot {
+  html {
+    scroll-behavior: auto;
+  }
+  .mascot,
+  .rise {
     animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

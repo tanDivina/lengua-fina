@@ -181,6 +181,29 @@ export default function Home() {
     if (q && DEMOS.some((d) => d.id === q)) setDemoId(q);
   }, []);
 
+  // Fade .reveal sections up once they scroll into view.
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal:not(.is-in)");
+    if (!els.length) return;
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      els.forEach((el) => el.classList.add("is-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries)
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            io.unobserve(e.target);
+          }
+      },
+      { threshold: 0.15 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+    // Re-run when idle sections remount so they get observed again.
+  }, [running, error, results]);
+
   const demo = DEMOS.find((d) => d.id === demoId) ?? DEMOS[0];
 
   function loadDemo() {
@@ -284,48 +307,81 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="rise flex flex-wrap items-center justify-between gap-4">
         <div className="font-display text-[26px] font-extrabold tracking-tight">
           lengua<span className="text-gold">·</span>fina
         </div>
         <div className="text-[13px] text-muted">Every reference, traceable to Qloo.</div>
       </div>
 
-      <header className="mt-10 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+      <header className="mt-12 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
         <div className="max-w-2xl">
-          <h1 className="font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
-            Your copy, read by three different rooms.
+          <p
+            className="rise flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px] sm:tracking-[0.22em]"
+            style={{ "--rise": "0.06s" } as React.CSSProperties}
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-gold" aria-hidden />
+            Transcreation agent · taste data by Qloo
+          </p>
+          <h1
+            className="rise mt-4 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl"
+            style={{ "--rise": "0.12s" } as React.CSSProperties}
+          >
+            Your copy, read by <span className="text-[#95a2ff]">three</span>{" "}
+            <span className="text-[#ff9d73]">different</span> <span className="text-gold">rooms.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
+          <p
+            className="rise mt-5 max-w-xl text-lg leading-relaxed text-muted"
+            style={{ "--rise": "0.2s" } as React.CSSProperties}
+          >
             Lengua Fina asks Qloo what each audience loves, drops the references that won&apos;t land, and
             rewrites around the ones that will. Every swap comes with its taste facts.
           </p>
+          <div
+            className="rise mt-7 flex flex-wrap items-center gap-3"
+            style={{ "--rise": "0.28s" } as React.CSSProperties}
+          >
+            <a
+              href="#workbench"
+              className="rounded-full bg-fg px-7 py-3 font-display text-base font-bold text-stage transition hover:bg-gold"
+            >
+              Run your copy
+            </a>
+            <a
+              href="#verdicto"
+              className="rounded-full border border-line px-7 py-3 text-base font-medium text-muted transition hover:border-gold hover:text-fg"
+            >
+              Read a saved verdict
+            </a>
+          </div>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/mascot/tamandua.svg"
-          alt=""
-          className={`mascot h-48 w-auto shrink-0 sm:h-60 ${running ? "mascot-busy" : ""}`}
-        />
+        <div className="rise shrink-0" style={{ "--rise": "0.2s" } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/mascot/tamandua.svg"
+            alt=""
+            className={`mascot h-48 w-auto sm:h-60 ${running ? "mascot-busy" : ""}`}
+          />
+        </div>
       </header>
 
-      <section className="mt-10 rounded-[28px] border border-line px-6 py-5 sm:px-8">
-        <div className="grid gap-6 sm:grid-cols-3">
-          <div>
-            <div className="font-display text-4xl font-extrabold text-gold">76%</div>
-            <p className="mt-1 text-sm leading-snug text-muted">
+      <section className="rise mt-14 border-y border-line py-7" style={{ "--rise": "0.38s" } as React.CSSProperties}>
+        <div className="grid gap-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-line">
+          <div className="sm:pr-8">
+            <div className="font-display text-5xl font-extrabold tracking-tight text-gold">76%</div>
+            <p className="mt-1.5 text-sm leading-snug text-muted">
               of online shoppers prefer products with information in their own language
             </p>
           </div>
-          <div>
-            <div className="font-display text-4xl font-extrabold text-gold">40%</div>
-            <p className="mt-1 text-sm leading-snug text-muted">
+          <div className="sm:px-8">
+            <div className="font-display text-5xl font-extrabold tracking-tight text-gold">40%</div>
+            <p className="mt-1.5 text-sm leading-snug text-muted">
               will never buy from a website in another language
             </p>
           </div>
-          <div>
-            <div className="font-display text-4xl font-extrabold text-gold">0</div>
-            <p className="mt-1 text-sm leading-snug text-muted">
+          <div className="sm:pl-8">
+            <div className="font-display text-5xl font-extrabold tracking-tight text-gold">0</div>
+            <p className="mt-1.5 text-sm leading-snug text-muted">
               references the agent can invent — it can only cite what Qloo returned in the run
             </p>
           </div>
@@ -344,7 +400,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section id="workbench" className="mt-6 rounded-[28px] border border-line bg-panel p-5 sm:p-8">
+      <section id="workbench" className="mt-6 scroll-mt-8 rounded-[28px] border border-line bg-panel p-5 sm:p-8">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-6">
             <label className="block">
@@ -482,8 +538,12 @@ export default function Home() {
               title: "It rewrites, with receipts.",
               body: "Product facts stay as written; the hooks change. Every new reference comes from Qloo with its affinity score. The agent can't submit one Qloo didn't return.",
             },
-          ].map((s) => (
-            <div key={s.n} className="rounded-[28px] border border-line p-6">
+          ].map((s, i) => (
+            <div
+              key={s.n}
+              className="reveal rounded-[28px] border border-line p-6"
+              style={{ "--reveal": `${i * 0.1}s` } as React.CSSProperties}
+            >
               <div className="font-display text-3xl font-extrabold text-gold">{s.n}</div>
               <h2 className="mt-3 font-semibold">{s.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.body}</p>
@@ -493,7 +553,7 @@ export default function Home() {
       )}
 
       {!running && !error && log.length === 0 && !results && (
-        <section className="mt-12">
+        <section id="verdicto" className="reveal mt-14 scroll-mt-8">
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <h2 className="font-display text-4xl font-extrabold tracking-tight">El veredicto</h2>
             <p className="text-[13px] text-muted">Saved runs of the real agent · {DEMO_RAN_AT}</p>
@@ -585,7 +645,9 @@ export default function Home() {
         </section>
       )}
 
-      <Waitlist />
+      <div className="reveal">
+        <Waitlist />
+      </div>
 
       <footer className="mt-12 border-t border-line pt-6 text-sm text-muted">
         Built in Bocas del Toro, Panama, for the Qloo Agentic Hackathon. Taste data by Qloo.
