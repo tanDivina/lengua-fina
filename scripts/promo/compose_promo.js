@@ -28,20 +28,35 @@ const T = durOf(RAW);
 const f3 = (n) => n.toFixed(3);
 const stamp = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
-// ── Retiming: compress the agent-run wait ──────────────────────────────────
-const nLog = tl.audio.find((c) => c.name === 'n_log');
-const a = Math.min(m.run_start + 1.2, m.run_end);
-const b = Math.max(a, m.run_end - 0.5);
-let f = 1;
-if (b - a > 2) {
-  const cueT = nLog ? nLog.t : a;
-  const voiceNeeds = nLog && fs.existsSync(nLog.file) ? cueT + durOf(nLog.file) + 0.7 - a : 3;
-  const target = Math.min(b - a, Math.max(3, voiceNeeds));
-  f = target / (b - a);
+// ── Retiming: compress the agent-run wait and any dead navigation gaps ─────
+const compress = [];
+{
+  const nLog = tl.audio.find((c) => c.name === 'n_log');
+  const a = Math.min(m.run_start + 1.2, m.run_end);
+  const b = Math.max(a, m.run_end - 0.5);
+  if (b - a > 2) {
+    const cueT = nLog ? nLog.t : a;
+    const voiceNeeds = nLog && fs.existsSync(nLog.file) ? cueT + durOf(nLog.file) + 0.7 - a : 3;
+    const target = Math.min(b - a, Math.max(3, voiceNeeds));
+    compress.push({ a, b, f: target / (b - a), label: 'run' });
+  }
 }
-const mapT = (t) => (t <= a ? t : t < b ? a + (t - a) * f : t - (b - a) * (1 - f));
+if (m.dutch_nav != null && m.honest != null) {
+  const a = m.dutch_nav + 0.4;
+  const b = m.honest - 0.2;
+  if (b - a > 1.5) compress.push({ a, b, f: 1.2 / (b - a), label: 'nav' });
+}
+const mapT = (t) => {
+  let out = t;
+  for (const s of compress) {
+    if (t >= s.b) out -= (s.b - s.a) * (1 - s.f);
+    else if (t > s.a) out -= (t - s.a) * (1 - s.f);
+  }
+  return out;
+};
 const MT = mapT(T);
-console.log(`run span ${f3(a)}–${f3(b)} compressed x${(1 / f).toFixed(2)} → screen part ${f3(MT)}s (raw ${f3(T)}s)`);
+compress.forEach((s) => console.log(`${s.label} span ${f3(s.a)}–${f3(s.b)} compressed x${(1 / s.f).toFixed(2)}`));
+console.log(`screen part ${f3(MT)}s (raw ${f3(T)}s)`);
 
 // ── Segment offsets ─────────────────────────────────────────────────────────
 const XF = 0.5;
@@ -90,13 +105,20 @@ if (MUSIC && fs.existsSync(MUSIC)) { MUS = idx++; inputs.push('-i', MUSIC); }
 
 // ── Video graph ─────────────────────────────────────────────────────────────
 const parts = [];
-if (f < 1) {
-  parts.push(
-    `[0:v]trim=0:${f3(a)},setpts=PTS-STARTPTS[s0]`,
-    `[0:v]trim=${f3(a)}:${f3(b)},setpts=(PTS-STARTPTS)*${f.toFixed(5)}[s1]`,
-    `[0:v]trim=${f3(b)},setpts=PTS-STARTPTS[s2]`,
-    `[s0][s1][s2]concat=n=3:v=1,fps=30[vt]`
-  );
+if (compress.length) {
+  const segs = [];
+  let prev = 0;
+  compress.forEach((s) => {
+    if (s.a > prev) segs.push({ from: prev, to: s.a, f: 1 });
+    segs.push({ from: s.a, to: s.b, f: s.f });
+    prev = s.b;
+  });
+  segs.push({ from: prev, to: T, f: 1 });
+  segs.forEach((s, i) => {
+    const end = i === segs.length - 1 ? '' : `:${f3(s.to)}`;
+    parts.push(`[0:v]trim=${f3(s.from)}${end},setpts=(PTS-STARTPTS)*${s.f.toFixed(5)}[s${i}]`);
+  });
+  parts.push(`${segs.map((_, i) => `[s${i}]`).join('')}concat=n=${segs.length}:v=1,fps=30[vt]`);
 } else {
   parts.push(`[0:v]fps=30[vt]`);
 }
@@ -180,10 +202,15 @@ if (mixIns.length) {
 const filter = [...parts, ...aparts, mix].join(';\n');
 const fscript = path.join(WORK, 'filter.txt');
 fs.writeFileSync(fscript, filter);
-const args = ['-y', ...inputs, '-filter_complex_script', fscript, '-map', '[vout]', '-map', '[aout]', '-t', f3(TOTAL),
+const args = ['-y', ...inputs, '-/filter_complex', fscript, '-map', '[vout]', '-map', '[aout]', '-t', f3(TOTAL),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', OUT];
 console.log(`composing ${OUT} (${TOTAL.toFixed(1)}s)`);
-execFileSync(FFMPEG, args, { stdio: ['ignore', 'inherit', 'pipe'] });
+try {
+  execFileSync(FFMPEG, args, { stdio: ['ignore', 'inherit', 'pipe'] });
+} catch (e) {
+  console.error('ffmpeg failed:\n' + (e.stderr ? e.stderr.toString().slice(-3000) : e.message));
+  process.exit(1);
+}
 
 // ── Final timestamps for the Devpost text ───────────────────────────────────
 const at = (t) => ofsScreen + mapT(t);

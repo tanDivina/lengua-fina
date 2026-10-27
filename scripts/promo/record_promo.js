@@ -97,8 +97,10 @@ async function main() {
 
   // Recorder: wall-clock timestamps keep the video real-time.
   const ff = spawn(FFMPEG, ['-y', '-use_wallclock_as_timestamps', '1', '-f', 'image2pipe', '-vcodec', 'mjpeg', '-i', '-',
-    '-vf', 'scale=1920:1080:flags=lanczos', '-vsync', 'cfr', '-r', '30', '-c:v', 'libx264', '-preset', 'fast', '-crf', '17', '-pix_fmt', 'yuv420p', RAW]);
-  ff.stderr.on('data', () => {});
+    '-vf', 'scale=1920:1080:flags=lanczos', '-fps_mode', 'cfr', '-r', '30', '-c:v', 'libx264', '-preset', 'fast', '-crf', '17', '-pix_fmt', 'yuv420p', RAW]);
+  let ffErr = '';
+  ff.stderr.on('data', (d) => { ffErr += d; if (ffErr.length > 8000) ffErr = ffErr.slice(-8000); });
+  ff.on('close', (code) => { if (code !== 0 && code !== null) console.error(`ffmpeg exited ${code}:\n${ffErr}`); });
   const cdp = await page.target().createCDPSession();
   let frames = 0; let t0 = null; const marks = {}; const audio = [];
   const now = () => (Date.now() - t0) / 1000;
@@ -227,12 +229,15 @@ async function main() {
 
   // Wait for the full agent run (3 markets, ~2–3 min; compressed in post).
   await page.waitForFunction(
-    () => document.body.innerText.includes('returned by Qloo during this run') || document.body.innerText.includes('Something went wrong') || !!document.querySelector('.text-mandarin'),
+    () => document.body.innerText.includes('returned by Qloo during this run') || document.body.innerText.includes('Something went wrong') || !!document.querySelector('p.text-mandarin'),
     { timeout: 420000 }
   );
   mark('run_end');
   const ok = await page.evaluate(() => document.body.innerText.includes('returned by Qloo during this run'));
-  if (!ok) throw new Error('run failed — check the app error state');
+  if (!ok) {
+    const errText = await page.evaluate(() => document.querySelector('p.text-mandarin')?.innerText ?? '(no error element)');
+    throw new Error(`run failed — app error: ${errText}`);
+  }
 
   // ── Scene 6: the verdict ─────────────────────────────────────────────────
   await scrollToText('El veredicto', 110, 900);
@@ -263,7 +268,8 @@ async function main() {
 
   // ── Scene 8: Willemstad — honest no-data demo ────────────────────────────
   mark('dutch_nav'); console.log('Scene 8: Dutch demo (Willemstad)');
-  await page.goto(`${APP}/?demo=dutch`, { waitUntil: 'networkidle0', timeout: 60000 });
+  await page.goto(`${APP}/?demo=dutch`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await waitText('Willemstad', 30000);
   await page.evaluate(() => {
     window.absY = (txt, sel) => {
       if (sel) {
