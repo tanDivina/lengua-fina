@@ -328,7 +328,7 @@ export default function Home() {
             style={{ "--rise": "0.12s" } as React.CSSProperties}
           >
             Your copy, read by <span className="text-[#95a2ff]">three</span>{" "}
-            <span className="text-[#ff9d73]">different</span> <span className="text-gold">rooms.</span>
+            <span className="text-mandarin">different</span> <span className="text-gold">rooms.</span>
           </h1>
           <p
             className="rise mt-5 max-w-xl text-lg leading-relaxed text-muted"
