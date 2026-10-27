@@ -1,6 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+// Counts a stat up from 0 once on mount; shows the final value under reduced motion.
+function Stat({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVal(to);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now() + 350; // let the strip's rise begin first
+    const dur = 1400;
+    const tick = (t: number) => {
+      const p = Math.min(Math.max((t - start) / dur, 0), 1);
+      setVal(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return (
+    <div className="font-display text-5xl font-extrabold tracking-tight text-gold tabular-nums">
+      {val}
+      {suffix}
+    </div>
+  );
+}
 import type { AgentEvent, MarketResult } from "@/lib/agent";
 import type { AgeRange } from "@/lib/qloo";
 import { DEMOS, DEMO_RAN_AT } from "@/data/demos";
@@ -173,6 +200,7 @@ export default function Home() {
   const [results, setResults] = useState<MarketResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [perked, setPerked] = useState(false);
   const [demoId, setDemoId] = useState(DEMOS[0].id);
 
   // Deep link: /?demo=german opens that saved run.
@@ -343,6 +371,10 @@ export default function Home() {
           >
             <a
               href="#workbench"
+              onMouseEnter={() => setPerked(true)}
+              onMouseLeave={() => setPerked(false)}
+              onFocus={() => setPerked(true)}
+              onBlur={() => setPerked(false)}
               className="rounded-full bg-fg px-7 py-3 font-display text-base font-bold text-stage transition hover:bg-gold"
             >
               Run your copy
@@ -360,7 +392,7 @@ export default function Home() {
           <img
             src="/mascot/tamandua.svg"
             alt=""
-            className={`mascot h-48 w-auto sm:h-60 ${running ? "mascot-busy" : ""}`}
+            className={`mascot h-52 w-auto sm:h-72 ${running ? "mascot-busy" : ""} ${perked ? "mascot-perk" : ""}`}
           />
         </div>
       </header>
@@ -368,13 +400,13 @@ export default function Home() {
       <section className="rise mt-14 border-y border-line py-7" style={{ "--rise": "0.38s" } as React.CSSProperties}>
         <div className="grid gap-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-line">
           <div className="sm:pr-8">
-            <div className="font-display text-5xl font-extrabold tracking-tight text-gold">76%</div>
+            <Stat to={76} suffix="%" />
             <p className="mt-1.5 text-sm leading-snug text-muted">
               of online shoppers prefer products with information in their own language
             </p>
           </div>
           <div className="sm:px-8">
-            <div className="font-display text-5xl font-extrabold tracking-tight text-gold">40%</div>
+            <Stat to={40} suffix="%" />
             <p className="mt-1.5 text-sm leading-snug text-muted">
               will never buy from a website in another language
             </p>

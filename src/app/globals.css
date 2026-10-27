@@ -99,10 +99,17 @@ body::after {
 .mascot {
   animation: mascot-bob 2.8s ease-in-out infinite alternate;
   transform-origin: 50% 85%;
+  transition: scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .mascot-busy {
   animation-duration: 0.8s;
+}
+
+/* Hovering the hero CTA: he perks up — bigger, faster bob. */
+.mascot-perk {
+  scale: 1.08;
+  animation-duration: 0.7s;
 }
 
 @media (prefers-reduced-motion: reduce) {
