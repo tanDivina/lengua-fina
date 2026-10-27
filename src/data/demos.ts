@@ -14,7 +14,7 @@ export type Demo = {
   results: MarketResult[];
 };
 
-export const DEMO_RAN_AT = "Oct 25, 2026";
+export const DEMO_RAN_AT = "Oct 25–27, 2026";
 
 export const DEMOS: Demo[] = [
   {
@@ -155,6 +155,130 @@ export const DEMOS: Demo[] = [
               "name": "Heartless Bastards",
               "type": "urn:entity:artist",
               "affinity": 0.9925811235588174
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "truffles",
+    "label": "100% cacao truffles",
+    "product": "Hand-rolled truffles from unrefined 100% cacao mass, made in Bocas del Toro, Panama",
+    "copy": "Hand-rolled truffles from unrefined 100% cacao mass — just cane sugar, coconut milk and a pinch of salt. Darker than a Brussels praline and nothing like a supermarket bonbon. One with your afternoon café au lait, or after dinner instead of dessert.",
+    "markets": [
+      {
+        "city": "Tokyo",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "Japanese"
+      },
+      {
+        "city": "Brussels",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "French"
+      },
+      {
+        "city": "Austin",
+        "ages": [
+          "30_to_34",
+          "35_to_44"
+        ],
+        "language": "English"
+      }
+    ],
+    "results": [
+      {
+        "city": "Tokyo",
+        "language": "Japanese",
+        "copy": "パナマ・ボカスデルトロで、ひと粒ずつ手で丸めたトリュフ。未精製のカカオ100％のカカオマスに、加えるのはさとうきびの砂糖とココナッツミルク、そしてひとつまみの塩だけ。スーパーのチョコレートとは、まったくの別物です。午後のカフェオレにひと粒。夕食のあとは、デザートの代わりにもうひと粒。映画『恋は雨上がりのように』を観返す夜のおともにも。",
+        "backTranslation": "Truffles hand-rolled one by one in Bocas del Toro, Panama. To unrefined 100% cacao mass we add only cane sugar, coconut milk and a pinch of salt. Nothing at all like supermarket chocolate. One with your afternoon café au lait. After dinner, one more instead of dessert. Good company on a night when you rewatch the film After the Rain, too.",
+        "flags": [
+          {
+            "original": "Darker than a Brussels praline",
+            "problem": "Brussels isn't a reference point for this audience, so the comparison falls flat. I replaced it with a plain contrast to supermarket chocolate.",
+            "evidence": "check_reference: Brussels is not in the top 100 destinations for Tokyo 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "Brussels praline (Neuhaus as the typical Brussels praline brand)",
+            "problem": "Belgian praline brands don't rank either, so a brand-based comparison wouldn't work.",
+            "evidence": "check_reference: Neuhaus is not in the top 100 brands for Tokyo 30_to_34 + 35_to_44."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "映画『恋は雨上がりのように』",
+            "why": "After the Rain came up in market_taste for Tokyo 30–44 dark-chocolate fans, and Qloo tags it 'Chocolate covered almond', so it fits a quiet moment with chocolate.",
+            "entity": {
+              "id": "A899A9EC-9EEE-4B68-8D72-902251D951DD",
+              "name": "After the Rain",
+              "type": "urn:entity:movie",
+              "affinity": 0.8868139455427233
+            }
+          }
+        ]
+      },
+      {
+        "city": "Brussels",
+        "language": "French",
+        "copy": "Des truffes roulées à la main à Bocas del Toro, au Panama, à partir de masse de cacao 100 % non raffinée : rien d'autre que du sucre de canne, du lait de coco et une pincée de sel. Plus sombres que la praline que vous connaissez par cœur, et sans rien de commun avec un bonbon de supermarché. Une avec le café au lait de l'après-midi, ou après le dîner à la place du dessert, avec Tamino en fond sonore.",
+        "backTranslation": "Truffles hand-rolled in Bocas del Toro, Panama, from unrefined 100% cacao mass: nothing but cane sugar, coconut milk and a pinch of salt. Darker than the praline you know by heart, and nothing in common with a supermarket bonbon. One with your afternoon café au lait, or after dinner instead of dessert, with Tamino playing in the background.",
+        "flags": [
+          {
+            "original": "Brussels praline",
+            "problem": "For this audience the praline is local, so I kept it as a familiar shared reference ('the praline you know by heart'). I didn't tie it to a brand, because the obvious brand doesn't rank.",
+            "evidence": "check_reference: Neuhaus is not in the top 100 brands for Brussels 30_to_34 + 35_to_44."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "avec Tamino en fond sonore",
+            "why": "Tamino came up in market_taste for Brussels 30–44 dark-chocolate fans, and Qloo tags him 'Atmospheric' and 'Soulful', which suits a slow after-dinner moment.",
+            "entity": {
+              "id": "1004A62C-76AF-41FB-996C-82247B275406",
+              "name": "Tamino",
+              "type": "urn:entity:artist",
+              "affinity": 0.9057665400871546
+            }
+          }
+        ]
+      },
+      {
+        "city": "Austin",
+        "language": "English",
+        "copy": "Hand-rolled in Bocas del Toro, Panama, from unrefined 100% cacao mass, with just cane sugar, coconut milk and a pinch of salt. Darker than any truffle in a gift box, and nothing like a supermarket bonbon. Have one with your afternoon cup of Chameleon Coffee, or after dinner in place of dessert.",
+        "backTranslation": null,
+        "flags": [
+          {
+            "original": "Darker than a Brussels praline",
+            "problem": "Brussels doesn't connect with this audience, so I replaced it with a general contrast to gift-box truffles.",
+            "evidence": "check_reference: Brussels is not in the top 100 destinations for Austin 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "Brussels praline (Neuhaus as the typical Brussels praline brand)",
+            "problem": "Belgian praline brands don't rank here either.",
+            "evidence": "check_reference: Neuhaus is not in the top 100 brands for Austin 30_to_34 + 35_to_44."
+          },
+          {
+            "original": "café au lait",
+            "problem": "I swapped the generic French café ritual for a coffee brand this audience does have affinity for.",
+            "evidence": "market_taste (brand, Austin 30–44, dark-chocolate tag): Chameleon Coffee was returned, tagged 'Coffee & Tea'."
+          }
+        ],
+        "references": [
+          {
+            "phrase": "your afternoon cup of Chameleon Coffee",
+            "why": "Chameleon Coffee came up in market_taste for Austin 30–44 dark-chocolate fans, and it's the only coffee brand in that list, so it fits the afternoon-coffee moment from the original.",
+            "entity": {
+              "id": "B9B21763-4833-4F79-ABBD-6291EDB0EAB5",
+              "name": "Chameleon Coffee",
+              "type": "urn:entity:brand",
+              "affinity": 0.8957642450042923
             }
           }
         ]
