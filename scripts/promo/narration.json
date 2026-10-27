@@ -1,5 +1,5 @@
 {
-  "voiceId": "22UZnkBVDRkhXzHMOnOe",
+  "voiceId": "DUtuJQ1aNU8uctNobmZf",
   "modelId": "eleven_v4",
   "voiceSettings": { "stability": 0.5, "similarity_boost": 0.85, "style": 0.2 },
   "lines": {
