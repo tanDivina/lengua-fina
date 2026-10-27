@@ -12,16 +12,22 @@ Film horizontal (phone sideways), 1080p or 4K, eye level, bright open shade
 is readable. Look into the lens. Leave ~2 seconds of silence before and after
 each take. Two or three takes each; keep the one that feels thrown-away casual.
 
-**CLIP 1 — the opener (~15 s) → save as `intro.mov` (or .mp4)**
+**CLIP 1 — the opener (~17 s) → save as `intro.mov` (or .mp4)**
 
-> This chocolate grows right here, on my island in Bocas del Toro.
-> And this is the sentence I wrote to sell it:
-> "Smooth as a Brussels praline. Break off a square with your Sunday café au lait."
-> I'm Belgian. I thought that line was my safest one.
+Hold a truffle (or an open cacao pod) instead of a bar — everything you say
+stays literally true.
+
+> This cacao grows right here, on my island in Bocas del Toro.
+> I turn it into truffles — unrefined, one hundred percent cacao.
+> When I sell chocolate abroad, the hard part isn't the language.
+> It's lines like this one: "Smooth as a Brussels praline.
+> Perfect with your Sunday café au lait."
+> I'm Belgian. I thought that kind of line was safe.
 > In Tokyo, it means nothing. And in Brussels… it's actually worse.
 
 (The "worse" pays off at ~1:05, when the agent drops the praline line in
-Brussels itself — no spoilers in the opener.)
+Brussels itself — no spoilers in the opener. The bar in the demo stays as the
+app's saved sample; on camera you only claim the truffles.)
 
 **CLIP 2 — the closer (~8 s) → save as `outro.mov` (or .mp4)**
 
@@ -41,7 +47,7 @@ Pick the clone first: listen to the three files in
 | cue | plays over | line |
 |---|---|---|
 | n_stats | stat band | Seventy-six percent of shoppers prefer to buy in their own language. Translation fixes the words. It doesn't fix the references. |
-| n_copy | workbench | So here's my real copy, with its very European hooks — and three rooms to win: Tokyo, Brussels, and Austin. |
+| n_copy | workbench | So here's the demo: chocolate from Bocas del Toro, with its very European hooks — and three rooms to win: Tokyo, Brussels, and Austin. |
 | n_run | Transcreate click | One click. The agent asks Qloo what each room actually loves — artists, films, books, brands, places — filtered by city and age. |
 | n_log | live tasting notebook | This is a live run, not a mockup. Every reference gets tested against Qloo's taste data, and every replacement must come from what Qloo returned in this very run. The agent cannot invent a reference. Grounded, or rejected. |
 | n_verdict | verdict cards | The verdict: three rewrites, each with its taste facts — the exact Qloo entities, and their affinity scores, behind every swap. |
