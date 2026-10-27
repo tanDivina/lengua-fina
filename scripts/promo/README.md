@@ -3,6 +3,11 @@
 Records the real app doing one live run (Qloo + Claude) and produces a
 1920x1080 promo with narration. Adapted from the D'accord promo pipeline.
 
+v2 opens and closes with Dorien on camera and uses Dorien's cloned voice for
+the voice-over — lines, filming notes and assembly steps in `SCRIPT.md`.
+On-camera clips are passed as `INTRO=... OUTRO=...` to `compose_promo.js`;
+the composer prints the final scene timestamps for the Devpost text.
+
 ## One-time setup
 
 Keys: `QLOO_API_KEY` + `ANTHROPIC_API_KEY` in `lengua-fina/.env.local`

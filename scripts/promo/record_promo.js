@@ -188,11 +188,9 @@ async function main() {
   const waitText = (txt, timeout = 20000) =>
     page.waitForFunction((t) => document.body.innerText.toLowerCase().includes(t.toLowerCase()), { timeout }, txt);
 
-  // ── Scene 1: hero + mascot ───────────────────────────────────────────────
+  // ── Scene 1: hero + mascot (silent beat — the on-camera opener precedes it)
   mark('hero'); console.log('Scene 1: hero');
-  speak('n_hook');
-  await sleep(1400);
-  await settle(0.4);
+  await sleep(2200);
 
   // ── Scene 2: stat band ───────────────────────────────────────────────────
   mark('stats'); console.log('Scene 2: stats');
@@ -252,16 +250,41 @@ async function main() {
   }));
   await settle(0.3);
 
-  // ── Scene 7: honesty (Dropped flags + taste facts) ───────────────────────
-  mark('honest'); console.log('Scene 7: dropped flags');
-  speak('n_honest');
+  // ── Scene 7: Brussels drops its own praline ──────────────────────────────
+  mark('brussels'); console.log('Scene 7: Brussels praline drop');
+  const pralineDropped = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll('article'));
+    return cards.some((c) => /dropped/i.test(c.innerText) && /praline/i.test(c.innerText));
+  });
+  if (pralineDropped) speak('n_brussels');
+  else console.log('⚠ praline not dropped this run — skipping n_brussels');
   await scrollToText('Dropped', 260, 900);
-  await settle(0.6);
+  await settle(0.5);
 
-  // ── Outro: narrator carries into the end card ────────────────────────────
-  mark('outro'); console.log('Outro');
-  speak('n_outro');
-  await sleep(1500);
+  // ── Scene 8: Willemstad — honest no-data demo ────────────────────────────
+  mark('dutch_nav'); console.log('Scene 8: Dutch demo (Willemstad)');
+  await page.goto(`${APP}/?demo=dutch`, { waitUntil: 'networkidle0', timeout: 60000 });
+  await page.evaluate(() => {
+    window.absY = (txt, sel) => {
+      if (sel) {
+        const el = document.querySelector(sel);
+        return el ? el.getBoundingClientRect().top + window.scrollY : null;
+      }
+      const all = Array.from(document.querySelectorAll('section, h1, h2, div, p'));
+      const hits = all.filter((e) => (e.innerText || '').toLowerCase().includes(txt.toLowerCase()));
+      hits.sort((a, b) => a.offsetWidth * a.offsetHeight - b.offsetWidth * b.offsetHeight);
+      return hits[0] ? hits[0].getBoundingClientRect().top + window.scrollY : null;
+    };
+  });
+  await sleep(400);
+  mark('honest');
+  speak('n_honest');
+  await scrollToText('Willemstad', 180, 900);
+  await settle(0.8);
+
+  // ── Outro beat: a held frame; the on-camera closer + end card follow in post
+  mark('outro'); console.log('Outro hold');
+  await sleep(1200);
   mark('end');
 
   await cdp.send('Page.stopScreencast');

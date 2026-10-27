@@ -12,13 +12,13 @@ const WORK = process.argv[2] || path.join(process.env.HOME, 'Desktop', 'LenguaFi
 fs.mkdirSync(path.join(WORK, 'captions'), { recursive: true });
 
 const CAPTIONS = {
-  c_hook: 'An agent that reads the room',
   c_stats: '76% buy in their own language — CSA Research',
-  c_copy: 'Real product · European hooks · 3 markets',
-  c_run: 'Live run — no mockups',
+  c_copy: 'Real copy · European hooks · Tokyo, Brussels, Austin',
+  c_run: 'Live run — real Qloo calls',
   c_log: '0 inventable references: grounded or rejected',
   c_verdict: 'Taste facts: Qloo entities + affinity scores',
-  c_honest: 'No Qloo data? Flagged, never faked',
+  c_brussels: 'Dropped: its own praline — a contest with local chocolate',
+  c_honest: 'Willemstad: no Qloo data → zero references, says so',
 };
 
 const MASCOT = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'mascot', 'tamandua.svg'), 'utf8');
