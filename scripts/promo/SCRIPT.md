@@ -12,15 +12,16 @@ Film horizontal (phone sideways), 1080p or 4K, eye level, bright open shade
 is readable. Look into the lens. Leave ~2 seconds of silence before and after
 each take. Two or three takes each; keep the one that feels thrown-away casual.
 
-**CLIP 1 — the opener (~14 s) → save as `intro.mov` (or .mp4)**
+**CLIP 1 — the opener (~15 s) → save as `intro.mov` (or .mp4)**
 
 > This chocolate grows right here, on my island in Bocas del Toro.
 > And this is the sentence I wrote to sell it:
 > "Smooth as a Brussels praline. Break off a square with your Sunday café au lait."
-> In Brussels, that sentence sells chocolate. In Tokyo… it sells nothing.
+> I'm Belgian. I thought that line was my safest one.
+> In Tokyo, it means nothing. And in Brussels… it's actually worse.
 
-(Alternative last beat, pick whichever feels better out loud:
-"Perfect for Brussels. Invisible in Tokyo.")
+(The "worse" pays off at ~1:05, when the agent drops the praline line in
+Brussels itself — no spoilers in the opener.)
 
 **CLIP 2 — the closer (~8 s) → save as `outro.mov` (or .mp4)**
 
@@ -44,7 +45,7 @@ Pick the clone first: listen to the three files in
 | n_run | Transcreate click | One click. The agent asks Qloo what each room actually loves — artists, films, books, brands, places — filtered by city and age. |
 | n_log | live tasting notebook | This is a live run, not a mockup. Every reference gets tested against Qloo's taste data, and every replacement must come from what Qloo returned in this very run. The agent cannot invent a reference. Grounded, or rejected. |
 | n_verdict | verdict cards | The verdict: three rewrites, each with its taste facts — the exact Qloo entities, and their affinity scores, behind every swap. |
-| n_brussels | Brussels card "Dropped" | Brussels even dropped my own praline line. Comparing my bar to the city's praline starts a contest with local chocolate — a fight no translation tool would have seen. |
+| n_brussels | Brussels card "Dropped" | And there's the worse: Brussels dropped my praline line entirely. Comparing my bar to the city's own praline starts a contest with local chocolate — a fight no translation tool would have seen. |
 | n_honest | Willemstad demo card | And when Qloo has no data — Port wine, or a Willemstad audience — my agent says so. Flagged, never faked. |
 | n_outro | end card | Lengua Fina. Every reference, traceable to Qloo. Built for the Qloo Agentic Hackathon. |
 
