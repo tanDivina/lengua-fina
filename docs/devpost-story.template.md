@@ -1,4 +1,4 @@
-**Video guide:** {{t:click}} live run against Qloo · {{t:verdict}} the verdict with taste facts · {{t:brussels}} Brussels drops its own praline · {{t:willemstad}} Willemstad, where Qloo has no data
+**Video guide:** {{t:click}} live run against Qloo · {{t:verdict}} the verdict with taste facts · {{t:brussels}} Brussels drops its own praline · {{t:arch}} under the hood · {{t:numbers}} measured: does taste differ by market? · {{t:willemstad}} Willemstad, where Qloo has no data
 
 ## Inspiration
 
@@ -23,8 +23,8 @@ From a real run (Oct 25, saved on the site as the "70% dark chocolate" example, 
 ## How we built it
 
 - An agent on Claude (Anthropic SDK tool runner) with five tools over the Qloo hackathon API: `/search`, `/v2/tags` and `/v2/insights` (location + age signals, interest tags).
-- **Grounding by construction:** the agent's final answer goes through a check that rejects any reference whose Qloo entity id wasn't returned during that run. If it tries to slip one in, it gets sent back to fix it. You can't get a made-up reference out of Lengua Fina.
-- A validation script that compares Qloo's taste profiles across markets with no LLM involved, which we used to confirm the idea before building on it. For 30–44-year-olds in Tokyo, Brussels and Austin, the top-20 artists overlap 0–5% between any two markets and the top-20 brands 0%, with recognisably local names in every list (NUMBER GIRL and 木村カエラ in Tokyo; Tamino and Yseult in Brussels; Heartless Bastards in Austin). Books overlap far more (33–48%), so the agent leans on the entity types that actually diverge.
+- **Grounding by construction:** the agent's final answer goes through a check that rejects any reference whose Qloo entity id wasn't returned during that run. If it tries to slip one in, it gets sent back to fix it. You can't get a made-up reference out of Lengua Fina (the architecture is at {{t:arch}} in the video).
+- A validation script that compares Qloo's taste profiles across markets with no LLM involved, which we used to confirm the idea before building on it ({{t:numbers}} in the video). For 30–44-year-olds in Tokyo, Brussels and Austin, the top-20 artists overlap 0–5% between any two markets and the top-20 brands 0%, with recognisably local names in every list (NUMBER GIRL and 木村カエラ in Tokyo; Tamino and Yseult in Brussels; Heartless Bastards in Austin). Books overlap far more (33–48%), so the agent leans on the entity types that actually diverge.
 - Next.js on Vercel, streaming the agent's steps to the page so you can watch it work.
 
 ## Challenges we ran into
