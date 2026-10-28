@@ -230,7 +230,7 @@ async function main() {
   });
   await scrollToText('The tasting notebook', 240, 800);
   mark('run_start'); console.log('Scene 5: live run (this takes a while)');
-  await sleep(400);
+  await settle(0.4);
   speak('n_log');
 
   // Wait for the full agent run (3 markets, ~2–3 min; compressed in post).

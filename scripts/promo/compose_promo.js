@@ -34,6 +34,18 @@ const durOf = (f) => parseFloat(probe(f, ['-show_entries', 'format=duration', '-
 const hasAudio = (f) => probe(f, ['-select_streams', 'a', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0']) !== '';
 const T = durOf(RAW);
 const f3 = (n) => n.toFixed(3);
+
+// No narration line may start before the previous one has finished.
+{
+  let prevEnd = -Infinity, prevName = '';
+  [...tl.audio].sort((x, y) => x.t - y.t).forEach((c) => {
+    if (c.t < prevEnd + 0.4) {
+      console.log(`  ${c.name} moved ${(prevEnd + 0.4 - c.t).toFixed(2)}s later (overlapped ${prevName})`);
+      c.t = prevEnd + 0.4;
+    }
+    if (fs.existsSync(c.file)) { prevEnd = c.t + durOf(c.file); prevName = c.name; }
+  });
+}
 const stamp = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 // ── Retiming: compress the agent-run wait and the page change ──────────────
@@ -53,7 +65,9 @@ if (m.pre_click != null && m.run_click != null && m.run_click - m.pre_click > 2)
 }
 {
   const nLog = tl.audio.find((c) => c.name === 'n_log');
-  const a = Math.min(m.run_start + 1.2, m.run_end);
+  // Speed-up starts only once the "live run" line has begun, so the lines
+  // before it keep their real-time spacing.
+  const a = Math.min(Math.max(m.run_start + 1.2, nLog ? nLog.t + 0.3 : 0), m.run_end);
   const b = Math.max(a, m.run_end - 0.5);
   if (b - a > 2) {
     const cueT = nLog ? nLog.t : a;
