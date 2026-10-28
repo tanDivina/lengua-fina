@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400..700&display=swap">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1920px; height: 1080px; background: #0f0f10; color: #f5f5f2; overflow: hidden;
+         font-family: Inter, system-ui, sans-serif; }
+  .glow { position: absolute; inset: 0;
+          background: radial-gradient(ellipse 60% 45% at 50% 18%, rgba(255,210,74,0.09), transparent 70%); }
+  .mascot { position: absolute; left: 50%; top: 150px; height: 260px; transform: translateX(-50%); }
+  .mascot svg { height: 260px; width: auto; }
+  .line { position: absolute; left: 0; right: 0; top: 500px; text-align: center;
+          font-family: 'Bricolage Grotesque', Inter, sans-serif; font-weight: 800; font-size: 104px;
+          letter-spacing: -3px; }
+  .line span { position: relative; display: inline-block; }
+  .strike { position: absolute; left: -12px; top: 54%; height: 12px; border-radius: 6px;
+            background: #ffd24a; width: 0; }
+  .verdict { position: absolute; left: 0; right: 0; top: 690px; display: flex; flex-direction: column;
+             align-items: center; gap: 22px; }
+  .pill { background: #ff7a45; color: #141414; font-weight: 700; font-size: 30px; letter-spacing: 3px;
+          padding: 10px 26px; border-radius: 999px; }
+  .where { font-size: 40px; font-weight: 600; color: #f5f5f2; }
+  .src { font-size: 24px; color: #b8b8b2; font-family: ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="mascot" id="mascot"></div>
+  <div class="line"><span id="text">&ldquo;Smooth as a Brussels praline.&rdquo;<i class="strike" id="strike"></i></span></div>
+  <div class="verdict" id="verdict">
+    <div class="pill">DROPPED</div>
+    <div class="where" id="where"></div>
+    <div class="src" id="src"></div>
+  </div>
+<script>
+  const q = new URLSearchParams(location.search);
+  document.getElementById('where').textContent = q.get('where') || '';
+  document.getElementById('src').textContent = q.get('src') || '';
+  fetch(q.get('mascot')).then((r) => r.text()).then((svg) => {
+    document.getElementById('mascot').innerHTML = svg;
+    document.fonts.ready.then(() => { window.__ready = true; });
+  });
+
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+  const mascot = document.getElementById('mascot');
+  const text = document.getElementById('text');
+  const strike = document.getElementById('strike');
+  const verdict = document.getElementById('verdict');
+
+  // Timeline (seconds): mascot 0-0.6, line 0.3-0.9, strike 1.4-1.9, verdict 1.9-2.4.
+  window.seek = (t) => {
+    const m = ease((t - 0.0) / 0.6);
+    mascot.style.opacity = m;
+    mascot.style.transform = `translateX(-50%) translateY(${(1 - m) * 24 - Math.sin(t * 2.2) * 6}px)`;
+    const l = ease((t - 0.3) / 0.6);
+    text.style.opacity = l;
+    text.style.transform = `translateY(${(1 - l) * 20}px)`;
+    const s = ease((t - 1.4) / 0.5);
+    strike.style.width = `calc(${s * 100}% + ${s * 24}px)`;
+    text.style.color = s > 0 ? `rgba(245,245,242,${1 - s * 0.55})` : '#f5f5f2';
+    const v = ease((t - 1.9) / 0.5);
+    verdict.style.opacity = v;
+    verdict.style.transform = `translateY(${(1 - v) * 18}px)`;
+  };
+  window.seek(0);
+</script>
+</body>
+</html>

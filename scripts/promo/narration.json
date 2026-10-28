@@ -1,15 +1,23 @@
 {
-  "voiceId": "DUtuJQ1aNU8uctNobmZf",
+  "voiceId": "fcncnsSPje72BTK2ZpQL",
+  "voiceName": "Dorien (phone, garden, no denoise), the clone used for Rooted, Don Tuco and Lucienne. Never de-ess it.",
   "modelId": "eleven_v4",
-  "voiceSettings": { "stability": 0.5, "similarity_boost": 0.85, "style": 0.2 },
+  "seed": 7,
+  "voiceSettings": {
+    "stability": 0.6,
+    "similarity_boost": 0.85,
+    "style": 0,
+    "use_speaker_boost": true,
+    "speed": 1.08
+  },
   "lines": {
     "n_stats": "Seventy-six percent of shoppers prefer to buy in their own language. Translation fixes the words. It doesn't fix the references.",
-    "n_copy": "So here's the demo: chocolate from Bocas del Toro, with its very European hooks — and three rooms to win: Tokyo, Brussels, and Austin.",
-    "n_run": "One click. The agent asks Qloo what each room actually loves — artists, films, books, brands, places — filtered by city and age.",
+    "n_copy": "So here's the demo copy: chocolate from Bocas del Toro, with very European hooks. And three rooms to win. Tokyo, Brussels, and Austin.",
+    "n_run": "One click. The agent asks Qloo what each room actually loves: artists, films, books, brands and places, filtered by city and age.",
     "n_log": "This is a live run, not a mockup. Every reference gets tested against Qloo's taste data, and every replacement must come from what Qloo returned in this very run. The agent cannot invent a reference. Grounded, or rejected.",
-    "n_verdict": "The verdict: three rewrites, each with its taste facts — the exact Qloo entities, and their affinity scores, behind every swap.",
-    "n_brussels": "And there's the worse: Brussels dropped the praline line entirely. Comparing this chocolate to the city's own praline starts a contest with local chocolate — a fight no translation tool would have seen.",
-    "n_honest": "And when Qloo has no data — Port wine, or a Willemstad audience — my agent says so. Flagged, never faked.",
+    "n_verdict": "The verdict: three rewrites, each with its taste facts. The exact Qloo entities, and their affinity scores, behind every swap.",
+    "n_brussels": "And Brussels? In the saved run from October twenty-fifth, it dropped the praline line outright. Comparing this chocolate to the city's own praline invites a contest with local chocolate. A call no translation tool would make.",
+    "n_honest": "And when Qloo has no data, like Port wine, or a Willemstad audience, my agent says so. Flagged, never faked.",
     "n_outro": "Lengua Fina. Every reference, traceable to Qloo. Built for the Qloo Agentic Hackathon."
   }
 }

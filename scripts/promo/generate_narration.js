@@ -31,14 +31,16 @@ async function main() {
   const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'narration.json'), 'utf8'));
   const voiceId = process.env.LF_VOICE_ID || cfg.voiceId;
   const modelId = process.env.LF_TTS_MODEL || cfg.modelId;
+  const only = process.argv[3] ? process.argv[3].split(',') : null;
 
   for (const [name, text] of Object.entries(cfg.lines)) {
+    if (only && !only.includes(name)) continue;
     const out = path.join(AUDIO, `${name}.mp3`);
-    if (fs.existsSync(out) && !process.env.FORCE) { console.log(`skip ${name} (exists)`); continue; }
+    if (fs.existsSync(out) && !process.env.FORCE && !only) { console.log(`skip ${name} (exists)`); continue; }
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
       method: 'POST',
       headers: { 'xi-api-key': key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, model_id: modelId, voice_settings: cfg.voiceSettings }),
+      body: JSON.stringify({ text, model_id: modelId, voice_settings: cfg.voiceSettings, ...(cfg.seed ? { seed: cfg.seed } : {}) }),
     });
     if (!res.ok) { console.error(`${name}: ElevenLabs ${res.status} ${await res.text()}`); process.exit(1); }
     fs.writeFileSync(out, Buffer.from(await res.arrayBuffer()));

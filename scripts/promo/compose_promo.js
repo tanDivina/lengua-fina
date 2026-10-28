@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Composes the final 1920x1080 promo:
-//   [on-camera intro] -> screen recording (agent-run wait compressed, caption
-//   pills at remapped marks) -> [on-camera closer] -> end card with the outro
-//   voice line. Mixes level-matched narration stems with optional ducked music.
-// The on-camera clips are optional (env INTRO / OUTRO); without them it
-// behaves like v1. Prints the final scene timestamps for the Devpost text.
-// Usage: [INTRO=intro.mov] [OUTRO=outro.mov] node compose_promo.js [workdir] [out.mp4] [music.mp3]
+//   [cold open] -> [on-camera opener + name card] -> screen recording (waits
+//   compressed, caption pills) -> [on-camera closer] -> end card with the
+//   outro voice line. Missing on-camera clips are replaced by a slate showing
+//   their script, so timing (and the printed chapters) stay close to final.
+// Clips: env INTRO / OUTRO, else ~/Desktop/LenguaFina_Video/personal/p1_open.* / p2_close.*
+// Usage: node compose_promo.js [workdir] [out.mp4] [music.mp3]
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
@@ -15,8 +15,16 @@ const FFPROBE = '/opt/homebrew/bin/ffprobe';
 const WORK = process.argv[2] || path.join(process.env.HOME, 'Desktop', 'LenguaFina_Video', 'promo_work');
 const OUT = process.argv[3] || path.join(path.dirname(WORK), 'lengua_fina_promo.mp4');
 const MUSIC = process.argv[4] || process.env.MUSIC || null;
-const INTRO = process.env.INTRO && fs.existsSync(process.env.INTRO) ? process.env.INTRO : null;
-const OUTRO = process.env.OUTRO && fs.existsSync(process.env.OUTRO) ? process.env.OUTRO : null;
+const PERSONAL = path.join(path.dirname(WORK), 'personal');
+const findClip = (env, base) => {
+  if (process.env[env] && fs.existsSync(process.env[env])) return process.env[env];
+  return ['.mp4', '.mov', '.MOV', '.MP4'].map((e) => path.join(PERSONAL, base + e)).find(fs.existsSync) || null;
+};
+const INTRO = findClip('INTRO', 'p1_open');
+const OUTRO = findClip('OUTRO', 'p2_close');
+const SLATE_INTRO = 17, SLATE_OUTRO = 8;
+const COLD_FILE = path.join(WORK, 'intro', 'cold.mp4');
+const COLD = fs.existsSync(COLD_FILE) ? COLD_FILE : null;
 
 const tl = JSON.parse(fs.readFileSync(path.join(WORK, 'timeline.json')));
 const m = tl.marks;
@@ -28,8 +36,21 @@ const T = durOf(RAW);
 const f3 = (n) => n.toFixed(3);
 const stamp = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
-// ── Retiming: compress the agent-run wait and any dead navigation gaps ─────
+// ── Retiming: compress the agent-run wait and the page change ──────────────
 const compress = [];
+if (m.pre_click != null && m.run_click != null && m.run_click - m.pre_click > 2) {
+  const a = m.pre_click + 0.3, b = m.run_click - 0.9;
+  if (b - a > 0.5) compress.push({ a, b, f: 0.6 / (b - a), label: 'cursor travel' });
+}
+{
+  // Idle wait between the click line ending and the first agent event.
+  const nRun = tl.audio.find((c) => c.name === 'n_run');
+  if (nRun && fs.existsSync(nRun.file) && m.run_start != null) {
+    const a = nRun.t + durOf(nRun.file) + 0.6;
+    const b = m.run_start - 0.3;
+    if (b - a > 1.5) compress.push({ a, b, f: 1.0 / (b - a), label: 'first-event wait' });
+  }
+}
 {
   const nLog = tl.audio.find((c) => c.name === 'n_log');
   const a = Math.min(m.run_start + 1.2, m.run_end);
@@ -41,11 +62,12 @@ const compress = [];
     compress.push({ a, b, f: target / (b - a), label: 'run' });
   }
 }
-if (m.dutch_nav != null && m.honest != null) {
-  const a = m.dutch_nav + 0.4;
-  const b = m.honest - 0.2;
-  if (b - a > 1.5) compress.push({ a, b, f: 1.2 / (b - a), label: 'nav' });
+if (m.brussels_nav != null && m.brussels != null) {
+  const a = m.brussels_nav + 0.15;
+  const b = m.brussels - 0.05;
+  if (b - a > 0.5) compress.push({ a, b, f: 0.25 / (b - a), label: 'page change' });
 }
+compress.sort((x, y) => x.a - y.a);
 const mapT = (t) => {
   let out = t;
   for (const s of compress) {
@@ -55,24 +77,23 @@ const mapT = (t) => {
   return out;
 };
 const MT = mapT(T);
-compress.forEach((s) => console.log(`${s.label} span ${f3(s.a)}–${f3(s.b)} compressed x${(1 / s.f).toFixed(2)}`));
+compress.forEach((s) => console.log(`${s.label} ${f3(s.a)}–${f3(s.b)} compressed x${(1 / s.f).toFixed(2)}`));
 console.log(`screen part ${f3(MT)}s (raw ${f3(T)}s)`);
 
-// ── Segment offsets ─────────────────────────────────────────────────────────
-const XF = 0.5;
-const I = INTRO ? durOf(INTRO) : 0;
-const O = OUTRO ? durOf(OUTRO) : 0;
-const ofsScreen = INTRO ? I - XF : 0;
-const ofsOutro = OUTRO ? ofsScreen + MT - XF : null;
-const ofsEnd = OUTRO ? ofsOutro + O - XF : ofsScreen + MT - XF;
-
-// End card: long enough for the outro voice line (spoken over the card).
+// ── Segment layout ──────────────────────────────────────────────────────────
+const XF = 0.5, XC = 0.25;
+const C = COLD ? durOf(COLD) : 0;
+const I = INTRO ? durOf(INTRO) : SLATE_INTRO;
+const O = OUTRO ? durOf(OUTRO) : SLATE_OUTRO;
+const ofsIntro = COLD ? C - XC : 0;
+const ofsScreen = ofsIntro + I - XF;
+const ofsOutro = ofsScreen + MT - XF;
+const ofsEnd = ofsOutro + O - XF;
 const outroVoice = path.join(WORK, 'audio', 'n_outro.mp3');
-let END_CARD = 3.6;
-if (fs.existsSync(outroVoice)) END_CARD = Math.max(END_CARD, 0.4 + durOf(outroVoice) + 1.2);
+const END_CARD = Math.max(3.6, fs.existsSync(outroVoice) ? 0.4 + durOf(outroVoice) + 1.2 : 0);
 const TOTAL = ofsEnd + END_CARD;
 
-// ── Captions (overlaid on the screen part only) ─────────────────────────────
+// ── Captions (screen part only) ─────────────────────────────────────────────
 const spans = [];
 const add = (name, s, e) => {
   if (s == null || e == null) return;
@@ -81,30 +102,35 @@ const add = (name, s, e) => {
   if (fs.existsSync(file)) spans.push({ name, file, s: S, e: Math.min(E, MT - 0.2) });
 };
 add('c_stats', m.stats, m.copybench - 0.2);
-add('c_copy', m.copybench, m.run_click - 0.2);
+add('c_copy', m.copybench, (m.pre_click ?? m.run_click) - 0.2);
 add('c_run', m.run_click, m.run_start + 0.9);
 add('c_log', m.run_start + 1.1, m.run_end + 1.2);
-add('c_verdict', m.verdict + 0.2, m.brussels - 0.2);
-if (tl.audio.some((c) => c.name === 'n_brussels')) add('c_brussels', m.brussels, m.dutch_nav - 0.2);
-add('c_honest', m.honest, m.outro - 0.1);
+{
+  const wait = compress.find((s) => s.label === 'first-event wait');
+  add('c_speed', wait ? wait.a : m.run_start + 1.2, m.run_end - 0.6);
+}
+add('c_verdict', m.verdict + 0.2, m.brussels_nav - 0.2);
+add('c_brussels', m.brussels + 0.2, m.dutch_nav - 0.2);
+add('c_honest', m.honest + 0.3, m.outro - 0.1);
 
 // ── Inputs ──────────────────────────────────────────────────────────────────
-const inputs = ['-i', RAW, '-i', path.join(WORK, 'endcard.png')];
-spans.forEach((c) => inputs.push('-i', c.file));
-const CAP0 = 2;
+const inputs = [];
+const addIn = (...args) => { inputs.push(...args); return inputs.filter((x) => x === '-i').length - 1; };
+const RAW_IN = addIn('-i', RAW);
+const EC_IN = addIn('-i', path.join(WORK, 'endcard.png'));
+const capIns = spans.map((c) => addIn('-i', c.file));
 const clips = tl.audio.filter((c) => fs.existsSync(c.file));
-const AUD0 = CAP0 + spans.length;
-clips.forEach((c) => inputs.push('-i', c.file));
-let idx = AUD0 + clips.length;
-let OUTRO_VOICE = -1;
-if (fs.existsSync(outroVoice)) { OUTRO_VOICE = idx++; inputs.push('-i', outroVoice); }
-let INTRO_IN = -1, OUTRO_IN = -1, MUS = -1;
-if (INTRO) { INTRO_IN = idx++; inputs.push('-i', INTRO); }
-if (OUTRO) { OUTRO_IN = idx++; inputs.push('-i', OUTRO); }
-if (MUSIC && fs.existsSync(MUSIC)) { MUS = idx++; inputs.push('-i', MUSIC); }
+const clipIns = clips.map((c) => addIn('-i', c.file));
+const OUTRO_VOICE = fs.existsSync(outroVoice) ? addIn('-i', outroVoice) : -1;
+const COLD_IN = COLD ? addIn('-i', COLD) : -1;
+const INTRO_IN = INTRO ? addIn('-i', INTRO) : addIn('-loop', '1', '-t', f3(SLATE_INTRO), '-i', path.join(WORK, 'slate_intro.png'));
+const OUTRO_IN = OUTRO ? addIn('-i', OUTRO) : addIn('-loop', '1', '-t', f3(SLATE_OUTRO), '-i', path.join(WORK, 'slate_outro.png'));
+const NAME_IN = INTRO && fs.existsSync(path.join(WORK, 'namecard.png')) ? addIn('-loop', '1', '-t', f3(I), '-i', path.join(WORK, 'namecard.png')) : -1;
+const MUS = MUSIC && fs.existsSync(MUSIC) ? addIn('-i', MUSIC) : -1;
 
 // ── Video graph ─────────────────────────────────────────────────────────────
 const parts = [];
+const norm = 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,fps=30,format=yuv420p,setsar=1';
 if (compress.length) {
   const segs = [];
   let prev = 0;
@@ -116,38 +142,42 @@ if (compress.length) {
   segs.push({ from: prev, to: T, f: 1 });
   segs.forEach((s, i) => {
     const end = i === segs.length - 1 ? '' : `:${f3(s.to)}`;
-    parts.push(`[0:v]trim=${f3(s.from)}${end},setpts=(PTS-STARTPTS)*${s.f.toFixed(5)}[s${i}]`);
+    parts.push(`[${RAW_IN}:v]trim=${f3(s.from)}${end},setpts=(PTS-STARTPTS)*${s.f.toFixed(5)}[s${i}]`);
   });
   parts.push(`${segs.map((_, i) => `[s${i}]`).join('')}concat=n=${segs.length}:v=1,fps=30[vt]`);
 } else {
-  parts.push(`[0:v]fps=30[vt]`);
+  parts.push(`[${RAW_IN}:v]fps=30[vt]`);
 }
 let cur = 'vt';
 spans.forEach((c, i) => {
   const d = c.e - c.s;
   parts.push(
-    `[${CAP0 + i}:v]format=rgba,loop=-1:size=1:start=0,trim=0:${f3(d)},setpts=PTS-STARTPTS,` +
+    `[${capIns[i]}:v]format=rgba,loop=-1:size=1:start=0,trim=0:${f3(d)},setpts=PTS-STARTPTS,` +
       `fade=t=in:st=0:d=0.3:alpha=1,fade=t=out:st=${f3(Math.max(0, d - 0.3))}:d=0.3:alpha=1,setpts=PTS+${f3(c.s)}/TB[c${i}]`,
     `[${cur}][c${i}]overlay=0:0:eof_action=pass[v${i}]`
   );
   cur = `v${i}`;
 });
 parts.push(`[${cur}]format=yuv420p,setsar=1[main]`);
-const prepClip = (inIdx, label) =>
-  `[${inIdx}:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,fps=30,format=yuv420p,setsar=1[${label}]`;
-let chain = 'main';
-if (INTRO) {
-  parts.push(prepClip(INTRO_IN, 'iv'));
-  parts.push(`[iv][main]xfade=transition=fade:duration=${XF}:offset=${f3(I - XF)}[x1]`);
-  chain = 'x1';
+
+parts.push(`[${INTRO_IN}:v]${norm}[iv0]`);
+if (NAME_IN >= 0) {
+  parts.push(`[${NAME_IN}:v]format=rgba,fade=t=in:st=0.8:d=0.4:alpha=1,fade=t=out:st=5.2:d=0.4:alpha=1[nc]`);
+  parts.push(`[iv0][nc]overlay=0:0:eof_action=pass,format=yuv420p[iv]`);
+} else {
+  parts.push(`[iv0]null[iv]`);
 }
-if (OUTRO) {
-  parts.push(prepClip(OUTRO_IN, 'ov'));
-  parts.push(`[${chain}][ov]xfade=transition=fade:duration=${XF}:offset=${f3(ofsOutro)}[x2]`);
-  chain = 'x2';
+parts.push(`[${OUTRO_IN}:v]${norm}[ov]`);
+let chain = 'iv';
+if (COLD) {
+  parts.push(`[${COLD_IN}:v]${norm}[cv]`);
+  parts.push(`[cv][iv]xfade=transition=fade:duration=${XC}:offset=${f3(C - XC)}[x0]`);
+  chain = 'x0';
 }
-parts.push(`[1:v]loop=-1:size=1:start=0,trim=duration=${f3(END_CARD + XF)},setpts=PTS-STARTPTS,fps=30,format=yuv420p,setsar=1[ec]`);
-parts.push(`[${chain}][ec]xfade=transition=fade:duration=${XF}:offset=${f3(ofsEnd)}[vout]`);
+parts.push(`[${chain}][main]xfade=transition=fade:duration=${XF}:offset=${f3(ofsScreen)}[x1]`);
+parts.push(`[x1][ov]xfade=transition=fade:duration=${XF}:offset=${f3(ofsOutro)}[x2]`);
+parts.push(`[${EC_IN}:v]loop=-1:size=1:start=0,trim=duration=${f3(END_CARD + XF)},setpts=PTS-STARTPTS,fps=30,format=yuv420p,setsar=1[ec]`);
+parts.push(`[x2][ec]xfade=transition=fade:duration=${XF}:offset=${f3(ofsEnd)}[vout]`);
 
 // ── Audio graph ─────────────────────────────────────────────────────────────
 const VOICE_TARGET = -20;
@@ -158,45 +188,40 @@ const gainOf = (file) => {
 };
 const aparts = [];
 const mixIns = [];
-clips.forEach((c, i) => {
-  const d = Math.round((ofsScreen + mapT(c.t)) * 1000);
-  const g = gainOf(c.file);
-  console.log(`  stem ${c.name}: ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB @ ${(d / 1000).toFixed(2)}s`);
-  aparts.push(`[${AUD0 + i}:a]volume=${g.toFixed(2)}dB,adelay=${d}|${d},aformat=sample_rates=44100:channel_layouts=stereo[a${i}]`);
-  mixIns.push(`[a${i}]`);
-});
-if (OUTRO_VOICE >= 0) {
-  const d = Math.round((ofsEnd + 0.4) * 1000);
-  const g = gainOf(outroVoice);
-  console.log(`  stem n_outro: ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB @ ${(d / 1000).toFixed(2)}s`);
-  aparts.push(`[${OUTRO_VOICE}:a]volume=${g.toFixed(2)}dB,adelay=${d}|${d},aformat=sample_rates=44100:channel_layouts=stereo[aov]`);
-  mixIns.push('[aov]');
-}
-const clipAudio = (inIdx, file, delaySec, len, label) => {
+const voiceStem = (inIdx, file, at, label) => {
+  const d = Math.round(at * 1000);
   const g = gainOf(file);
-  const d = Math.round(delaySec * 1000);
-  console.log(`  clip audio ${label}: ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB @ ${delaySec.toFixed(2)}s`);
-  aparts.push(`[${inIdx}:a]volume=${g.toFixed(2)}dB,afade=t=out:st=${f3(Math.max(0, len - 0.5))}:d=0.5,adelay=${d}|${d},aformat=sample_rates=44100:channel_layouts=stereo[${label}]`);
-  mixIns.push(`[${label}]`);
+  console.log(`  ${label}: ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB @ ${at.toFixed(2)}s`);
+  aparts.push(`[${inIdx}:a]volume=${g.toFixed(2)}dB,adelay=${d}|${d},aformat=sample_rates=44100:channel_layouts=stereo[a_${label}]`);
+  mixIns.push(`[a_${label}]`);
 };
-if (INTRO && hasAudio(INTRO)) clipAudio(INTRO_IN, INTRO, 0, I, 'ain');
-if (OUTRO && hasAudio(OUTRO)) clipAudio(OUTRO_IN, OUTRO, ofsOutro, O, 'aout_clip');
+clips.forEach((c, i) => voiceStem(clipIns[i], c.file, ofsScreen + mapT(c.t), c.name));
+if (OUTRO_VOICE >= 0) voiceStem(OUTRO_VOICE, outroVoice, ofsEnd + 0.4, 'n_outro');
+if (COLD) {
+  aparts.push(`[${COLD_IN}:a]aformat=sample_rates=44100:channel_layouts=stereo[a_cold]`);
+  mixIns.push('[a_cold]');
+}
+const clipAudio = (inIdx, file, at, len, label) => {
+  const g = gainOf(file);
+  const d = Math.round(at * 1000);
+  console.log(`  ${label}: ${g >= 0 ? '+' : ''}${g.toFixed(1)} dB @ ${at.toFixed(2)}s`);
+  aparts.push(`[${inIdx}:a]volume=${g.toFixed(2)}dB,afade=t=out:st=${f3(Math.max(0, len - 0.5))}:d=0.5,adelay=${d}|${d},aformat=sample_rates=44100:channel_layouts=stereo[a_${label}]`);
+  mixIns.push(`[a_${label}]`);
+};
+if (INTRO && hasAudio(INTRO)) clipAudio(INTRO_IN, INTRO, ofsIntro, I, 'opener');
+if (OUTRO && hasAudio(OUTRO)) clipAudio(OUTRO_IN, OUTRO, ofsOutro, O, 'closer');
 
+const voices = `${mixIns.join('')}amix=inputs=${mixIns.length}:normalize=0:dropout_transition=0,apad=whole_dur=${f3(TOTAL)}`;
 let mix;
-if (mixIns.length) {
-  const voices = `${mixIns.join('')}amix=inputs=${mixIns.length}:normalize=0:dropout_transition=0,apad=whole_dur=${f3(TOTAL)}`;
-  if (MUS >= 0) {
-    aparts.push(`[${MUS}:a]dynaudnorm=f=400:g=15:p=0.7:m=8,volume=0.07,afade=t=in:d=1.5,atrim=0:${f3(TOTAL)},afade=t=out:st=${f3(TOTAL - 2.5)}:d=2.5,aformat=sample_rates=44100:channel_layouts=stereo[am]`);
-    mix = [
-      `${voices},asplit=2[vx][vsc]`,
-      `[am][vsc]sidechaincompress=threshold=0.015:ratio=8:attack=60:release=700:makeup=1[duck]`,
-      `[duck][vx]amix=inputs=2:normalize=0:dropout_transition=0,volume=4dB,alimiter=limit=0.89:attack=5:release=60:level=false[aout]`,
-    ].join(';\n');
-  } else {
-    mix = `${voices},volume=3dB,alimiter=limit=0.89:attack=5:release=60:level=false[aout]`;
-  }
+if (MUS >= 0) {
+  aparts.push(`[${MUS}:a]dynaudnorm=f=400:g=15:p=0.7:m=8,volume=0.07,afade=t=in:d=1.5,atrim=0:${f3(TOTAL)},afade=t=out:st=${f3(TOTAL - 2.5)}:d=2.5,aformat=sample_rates=44100:channel_layouts=stereo[am]`);
+  mix = [
+    `${voices},asplit=2[vx][vsc]`,
+    `[am][vsc]sidechaincompress=threshold=0.015:ratio=8:attack=60:release=700:makeup=1[duck]`,
+    `[duck][vx]amix=inputs=2:normalize=0:dropout_transition=0,volume=4dB,alimiter=limit=0.89:attack=5:release=60:level=false[aout]`,
+  ].join(';\n');
 } else {
-  mix = `anullsrc=r=44100:cl=stereo,atrim=0:${f3(TOTAL)}[aout]`;
+  mix = `${voices},volume=3dB,alimiter=limit=0.89:attack=5:release=60:level=false[aout]`;
 }
 
 const filter = [...parts, ...aparts, mix].join(';\n');
@@ -204,7 +229,7 @@ const fscript = path.join(WORK, 'filter.txt');
 fs.writeFileSync(fscript, filter);
 const args = ['-y', ...inputs, '-/filter_complex', fscript, '-map', '[vout]', '-map', '[aout]', '-t', f3(TOTAL),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', OUT];
-console.log(`composing ${OUT} (${TOTAL.toFixed(1)}s)`);
+console.log(`composing ${OUT} (${TOTAL.toFixed(1)}s)${INTRO ? '' : ' [opener slate]'}${OUTRO ? '' : ' [closer slate]'}`);
 try {
   execFileSync(FFMPEG, args, { stdio: ['ignore', 'inherit', 'pipe'] });
 } catch (e) {
@@ -212,20 +237,22 @@ try {
   process.exit(1);
 }
 
-// ── Final timestamps for the Devpost text ───────────────────────────────────
+// ── Scene timestamps (Devpost text + YouTube chapters) ──────────────────────
 const at = (t) => ofsScreen + mapT(t);
-console.log('\nFinal scene timestamps:');
-if (INTRO) console.log(`  0:00  on-camera opener`);
 const rows = [
-  ['stat band (76/40/0)', m.stats],
-  ['workbench: copy + markets', m.copybench],
-  ['Transcreate click (live run starts)', m.run_click],
-  ['tasting notebook: Qloo tool stream', m.run_start],
-  ['verdict cards + taste facts', m.verdict],
-  ['Brussels drops its own praline', m.brussels],
-  ['Willemstad: no data, says so', m.honest],
+  ['cold', 0, 'cold open: the praline line, struck'],
+  ['opener', ofsIntro, `Dorien on camera${INTRO ? '' : ' (slate)'}`],
+  ['stats', at(m.stats), 'stat band (76/40/0)'],
+  ['copy', at(m.copybench), 'workbench: copy + markets'],
+  ['click', at(m.run_click), 'Transcreate click (live run starts)'],
+  ['notebook', at(m.run_start), 'tasting notebook: Qloo tool stream'],
+  ['verdict', at(m.verdict), 'verdict cards + taste facts'],
+  ['brussels', at(m.brussels), 'saved run: Brussels drops the praline'],
+  ['willemstad', at(m.dutch_nav), 'saved run: Willemstad, no data, says so'],
+  ['closer', ofsOutro, `Dorien on camera${OUTRO ? '' : ' (slate)'}`],
+  ['end', ofsEnd, 'end card'],
 ];
-rows.forEach(([label, t]) => { if (t != null) console.log(`  ${stamp(at(t))}  ${label}`); });
-if (OUTRO) console.log(`  ${stamp(ofsOutro)}  on-camera closer`);
-console.log(`  ${stamp(ofsEnd)}  end card (outro voice line)`);
-console.log('done');
+fs.writeFileSync(path.join(WORK, 'scenes.json'), JSON.stringify({ total: TOTAL, slates: { opener: !INTRO, closer: !OUTRO }, scenes: rows.map(([key, t, label]) => ({ key, t: +t.toFixed(2), label })) }, null, 2));
+console.log('\nScene timestamps:');
+rows.forEach(([, t, label]) => console.log(`  ${stamp(t)}  ${label}`));
+console.log(`  total ${stamp(TOTAL)} (${TOTAL.toFixed(1)}s)`);

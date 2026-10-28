@@ -1,85 +1,68 @@
-# Lengua Fina — promo v2 script (Dorien on camera + cloned voice-over)
+# Lengua Fina: promo script (v3)
 
-Target length ~95 seconds. Two clips are recorded by Dorien on camera; the rest
-is the cloned voice over the real screen recording. Target timestamps below are
-planning values — the composer prints the real ones, which then go into the
-Devpost text.
+About 2:00 to 2:10 once the real clips are in. Flow: cold open, Dorien on
+camera, the live demo in Dorien's cloned garden voice, two saved-run beats,
+Dorien on camera, end card. Missing clips render as a slate with their script,
+so the cut and the timestamps are already close to final.
 
-## The two on-camera clips (record these)
+## The two on-camera clips (Dorien films these)
 
-Film horizontal (phone sideways), 1080p or 4K, eye level, bright open shade
-(no hard sun), garden or cacao trees behind you. Hold the bar so the wrapper
-is readable. Look into the lens. Leave ~2 seconds of silence before and after
-each take. Two or three takes each; keep the one that feels thrown-away casual.
+Film horizontal (phone sideways), 1080p or 4K, eye level, bright open shade,
+cacao or garden behind you. Hold a truffle (or an open cacao pod), never a bar:
+on camera you only claim what you make. Look into the lens, leave two seconds
+of silence before and after, and do two or three takes. Say it your way.
 
-**CLIP 1 — the opener (~17 s) → save as `intro.mov` (or .mp4)**
-
-Hold a truffle (or an open cacao pod) instead of a bar — everything you say
-stays literally true.
+**Opener, about 17 s** → `~/Desktop/LenguaFina_Video/personal/p1_open.mp4`
 
 > This cacao grows right here, on my island in Bocas del Toro.
-> I turn it into truffles — unrefined, one hundred percent cacao.
+> I turn it into truffles: unrefined, one hundred percent cacao.
 > When I sell chocolate abroad, the hard part isn't the language.
-> It's lines like this one: "Smooth as a Brussels praline.
-> Perfect with your Sunday café au lait."
+> It's lines like this one: "Smooth as a Brussels praline. Perfect with your Sunday café au lait."
 > I'm Belgian. I thought that kind of line was safe.
 > In Tokyo, it means nothing. And in Brussels… it's actually worse.
 
-(The "worse" pays off at ~1:05, when the agent drops the praline line in
-Brussels itself — no spoilers in the opener. The bar in the demo stays as the
-app's saved sample; on camera you only claim the truffles.)
+**Closer, about 8 s** → `~/Desktop/LenguaFina_Video/personal/p2_close.mp4`
 
-**CLIP 2 — the closer (~8 s) → save as `outro.mov` (or .mp4)**
-
-> I'm Dorien. I'm a translator — and I built Lengua Fina so my copy
+> I'm Dorien. I'm a translator, and I built Lengua Fina so my copy
 > doesn't just speak the language. It tastes local.
 
-Optional B-roll (nice to have, 10 s): snapping a square off the bar, close up.
+Raw phone takes can go anywhere (e.g. `~/Desktop/Personal_Clips_<date>/`);
+say which take, and it gets transcribed, trimmed and placed.
 
-Drop both files in `~/Desktop/LenguaFina_Video/` and say "assemble".
+## What the viewer sees and hears
 
-## Voice-over lines (cloned voice — generated, no recording needed)
-
-Pick the clone first: listen to the three files in
-`~/Desktop/LenguaFina_Video/voice_picker/` and say which one
-(phone_plus_vlog / vlog_cleaned / phone_garden).
-
-| cue | plays over | line |
+| beat | on screen | voice |
 |---|---|---|
-| n_stats | stat band | Seventy-six percent of shoppers prefer to buy in their own language. Translation fixes the words. It doesn't fix the references. |
-| n_copy | workbench | So here's the demo: chocolate from Bocas del Toro, with its very European hooks — and three rooms to win: Tokyo, Brussels, and Austin. |
-| n_run | Transcreate click | One click. The agent asks Qloo what each room actually loves — artists, films, books, brands, places — filtered by city and age. |
-| n_log | live tasting notebook | This is a live run, not a mockup. Every reference gets tested against Qloo's taste data, and every replacement must come from what Qloo returned in this very run. The agent cannot invent a reference. Grounded, or rejected. |
-| n_verdict | verdict cards | The verdict: three rewrites, each with its taste facts — the exact Qloo entities, and their affinity scores, behind every swap. |
-| n_brussels | Brussels card "Dropped" | And there's the worse: Brussels dropped the praline line entirely. Comparing this chocolate to the city's own praline starts a contest with local chocolate — a fight no translation tool would have seen. |
-| n_honest | Willemstad demo card | And when Qloo has no data — Port wine, or a Willemstad audience — my agent says so. Flagged, never faked. |
-| n_outro | end card | Lengua Fina. Every reference, traceable to Qloo. Built for the Qloo Agentic Hackathon. |
+| cold open, 3.6 s | tamandua, "Smooth as a Brussels praline." struck through, DROPPED in the markets that really dropped it in the recorded run | chime |
+| opener | Dorien + name card | Dorien |
+| stats | stat band, CSA source caption | n_stats |
+| copy | workbench: demo bar copy, Tokyo / Brussels / Austin | n_copy |
+| click | Transcreate, live run, "Sped up · real run time" badge | n_run, n_log |
+| verdict | the three live cards with taste facts | n_verdict |
+| Brussels | saved run Oct 25: "a contest with local chocolate" | n_brussels |
+| Willemstad | click "Dutch, three ways", saved run: no Qloo data | n_honest |
+| closer | Dorien | Dorien |
+| end card | tamandua, links | n_outro |
 
-## Shape of the final cut (target timestamps)
+The Brussels and Willemstad beats use the saved runs because live runs word
+their reasoning differently each time; the narration quotes the saved runs,
+and the captions say so. The cold open reads the recorded live run.
 
-| target | scene | voice | judging criterion it carries |
-|---|---|---|---|
-| 0:00 | ON CAMERA opener, the bar, the sentence | Dorien live | impact: real seller, real product |
-| 0:14 | hero + stat band (76 / 40 / 0) | clone | impact: measured problem |
-| 0:24 | workbench: copy + three markets | clone | design: complete product |
-| 0:36 | Transcreate → live tool stream | clone | tech: real Qloo calls, grounding rule |
-| 0:52 | verdict cards + taste facts | clone | tech+design: affinities on screen |
-| 1:05 | Brussels drops its own praline | clone | idea: non-obvious, taste-driven |
-| 1:13 | Willemstad: no data → says so | clone | tech: honest failure mode |
-| 1:22 | ON CAMERA closer | Dorien live | memorable bookend |
-| 1:30 | end card | clone | links |
+Voice: `narration.json` (Dorien's "phone, garden, no denoise" clone with the
+Rooted settings). No em dashes anywhere.
 
-## Assembly (after the clips exist)
+## Assembly
 
 ```bash
 cd ~/Projects/lengua-fina
-LF_VOICE_ID=<chosen clone id> FORCE=1 node scripts/promo/generate_narration.js
+node scripts/promo/generate_narration.js                 # FORCE=1 for all, or: "" n_x,n_y
 node scripts/promo/make_overlays.js
-# terminal 1: npm run dev   (watch the port! 3000 may be taken → use APP_URL)
-APP_URL=http://localhost:3001 node scripts/promo/record_promo.js
-INTRO=~/Desktop/LenguaFina_Video/intro.mov OUTRO=~/Desktop/LenguaFina_Video/outro.mov \
-  node scripts/promo/compose_promo.js
+npm run build && PORT=3005 npm run start                 # terminal 1: production build, not dev
+APP_URL=http://localhost:3005 node scripts/promo/record_promo.js
+node scripts/promo/make_overlays.js                      # again: renders the run-time badge
+node scripts/promo/make_cold.js
+node scripts/promo/compose_promo.js                      # picks up personal/p1_open + p2_close
+node scripts/promo/publish_text.js                       # docs/devpost-story.md + Desktop youtube.md
 ```
 
-The composer prints the final scene timestamps; put those into the Devpost
-story (e.g. "at 0:52 in the video, every reference carries its Qloo affinity").
+Clips only (no narration change): just `compose_promo.js` and `publish_text.js`.

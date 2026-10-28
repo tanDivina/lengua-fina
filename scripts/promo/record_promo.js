@@ -33,7 +33,8 @@ async function main() {
   await sleep(400);
 
   // Desktop cursor + click pulse, drawn by the page itself so it is captured.
-  await page.evaluate(() => {
+  // Re-injected after every page load.
+  const injectHelpers = () => page.evaluate(() => {
     const style = document.createElement('style');
     style.innerHTML = `
       #promo-cursor { position: fixed; width: 26px; height: 26px; pointer-events: none; z-index: 999999;
@@ -94,6 +95,7 @@ async function main() {
       return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     };
   });
+  await injectHelpers();
 
   // Recorder: wall-clock timestamps keep the video real-time.
   const ff = spawn(FFMPEG, ['-y', '-use_wallclock_as_timestamps', '1', '-f', 'image2pipe', '-vcodec', 'mjpeg', '-i', '-',
@@ -212,9 +214,13 @@ async function main() {
   await settle(0.4);
 
   // ── Scene 4: Transcreate ─────────────────────────────────────────────────
-  mark('run_click'); console.log('Scene 4: transcreate');
-  speak('n_run');
+  mark('pre_click'); console.log('Scene 4: transcreate');
   await clickOn('Transcreate', 650);
+  // The line starts on the real click; slow cursor travel before it is
+  // compressed in post.
+  mark('run_click');
+  console.log(`  click took ${(marks.run_click - marks.pre_click).toFixed(2)}s`);
+  speak('n_run');
   await waitText('The tasting notebook', 30000);
   // Keep the streaming log scrolled to its newest line.
   await page.evaluate(() => {
@@ -255,37 +261,73 @@ async function main() {
   }));
   await settle(0.3);
 
-  // ── Scene 7: Brussels drops its own praline ──────────────────────────────
-  mark('brussels'); console.log('Scene 7: Brussels praline drop');
-  const pralineDropped = await page.evaluate(() => {
-    const cards = Array.from(document.querySelectorAll('article'));
-    return cards.some((c) => /dropped/i.test(c.innerText) && /praline/i.test(c.innerText));
+  // Markets whose card struck the praline line through (the "Dropped" list).
+  const pralineDropped = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('article'))
+      .filter((c) => Array.from(c.querySelectorAll('span.line-through')).some((s) => /praline/i.test(s.innerText)))
+      .map((c) => (c.querySelector('span')?.innerText || '').trim())
+      .map((s) => s.charAt(0) + s.slice(1).toLowerCase())
+  );
+  console.log(`  praline dropped in: ${pralineDropped.join(', ') || 'none'}`);
+  // The Brussels card's own words for the praline drop, saved so the
+  // narration can be checked against what this run actually said.
+  const brusselsReason = await page.evaluate(() => {
+    const card = Array.from(document.querySelectorAll('article'))
+      .find((c) => /brussels/i.test(c.querySelector('span')?.innerText || ''));
+    if (!card) return '';
+    return Array.from(card.querySelectorAll('p')).map((p) => p.innerText).filter((t) => /praline/i.test(t)).join(' | ');
   });
-  if (pralineDropped) speak('n_brussels');
-  else console.log('⚠ praline not dropped this run — skipping n_brussels');
-  await scrollToText('Dropped', 260, 900);
+  console.log(`  Brussels reason (live run): ${brusselsReason}`);
+
+  // Live runs word their reasons differently each time, so the Brussels and
+  // Willemstad beats use the saved, unedited runs on the site, which the
+  // narration and the Devpost text quote. Captions mark them as saved runs.
+  // Document-Y of a market card's "Dropped" block (fallback: the card top).
+  const droppedY = (city) => page.evaluate((c) => {
+    const card = Array.from(document.querySelectorAll('article'))
+      .find((a) => (a.querySelector('span')?.innerText || '').trim().toLowerCase() === c.toLowerCase());
+    if (!card) return null;
+    const d = Array.from(card.querySelectorAll('span')).find((s) => /^dropped$/i.test(s.innerText.trim()));
+    return (d || card).getBoundingClientRect().top + window.scrollY;
+  }, city);
+
+  // ── Scene 7: saved run, Brussels drops its own praline ───────────────────
+  mark('brussels_nav'); console.log('Scene 7: saved run, Brussels praline drop');
+  // Reduced motion: the stat count-up shows its final values, so no false
+  // "0%" can flash past during the page change.
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  await page.goto(`${APP}/?demo=chocolate`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await waitText('El veredicto', 30000);
+  await injectHelpers();
+  await page.evaluate((x, y) => window.cursorTo(x, y), cx, cy);
+  const bY = await droppedY('Brussels');
+  await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, (bY ?? 0) - 330));
+  await sleep(500);
+  mark('brussels');
+  speak('n_brussels');
+  await sleep(1200);
+  const by = await page.evaluate((y) => y - window.scrollY + 40, bY ?? 0);
+  await moveTo(800, Math.min(820, by), 900);
   await settle(0.5);
 
-  // ── Scene 8: Willemstad — honest no-data demo ────────────────────────────
-  mark('dutch_nav'); console.log('Scene 8: Dutch demo (Willemstad)');
-  await page.goto(`${APP}/?demo=dutch`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await waitText('Willemstad', 30000);
-  await page.evaluate(() => {
-    window.absY = (txt, sel) => {
-      if (sel) {
-        const el = document.querySelector(sel);
-        return el ? el.getBoundingClientRect().top + window.scrollY : null;
-      }
-      const all = Array.from(document.querySelectorAll('section, h1, h2, div, p'));
-      const hits = all.filter((e) => (e.innerText || '').toLowerCase().includes(txt.toLowerCase()));
-      hits.sort((a, b) => a.offsetWidth * a.offsetHeight - b.offsetWidth * b.offsetHeight);
-      return hits[0] ? hits[0].getBoundingClientRect().top + window.scrollY : null;
-    };
+  // ── Scene 8: saved run, Willemstad has no Qloo data ──────────────────────
+  mark('dutch_nav'); console.log('Scene 8: saved run, Willemstad');
+  await scrollToText('El veredicto', 110, 900);
+  await clickOn('Dutch, three ways', 600);
+  await waitText('Willemstad', 15000);
+  await sleep(300);
+  const wY = await page.evaluate(() => {
+    const card = Array.from(document.querySelectorAll('article'))
+      .find((a) => /willemstad/i.test(a.querySelector('span')?.innerText || ''));
+    return card ? card.getBoundingClientRect().top + window.scrollY : null;
   });
-  await sleep(400);
+  if (wY !== null) await scrollTo(wY - 70, 900);
   mark('honest');
   speak('n_honest');
-  await scrollToText('Willemstad', 180, 900);
+  await sleep(2200);
+  // Bring the Willemstad card's own "no Qloo data" explanation into view.
+  const wd = await droppedY('Willemstad');
+  if (wd !== null) await scrollTo(wd - 240, 2400);
   await settle(0.8);
 
   // ── Outro beat: a held frame; the on-camera closer + end card follow in post
@@ -297,7 +339,8 @@ async function main() {
   await sleep(300);
   await browser.close();
   await new Promise((r) => { ff.stdin.end(); ff.on('close', r); });
-  fs.writeFileSync(path.join(WORK, 'timeline.json'), JSON.stringify({ fps: 30, frames, seconds: marks.end, marks, audio }, null, 2));
+  const ranOn = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  fs.writeFileSync(path.join(WORK, 'timeline.json'), JSON.stringify({ fps: 30, frames, seconds: marks.end, ranOn, pralineDropped, brusselsReason, marks, audio }, null, 2));
   console.log(`\n✅ ${RAW} (${frames} frames, ${marks.end}s)`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

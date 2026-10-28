@@ -1,5 +1,7 @@
 # Devpost draft: Lengua Fina
 
+> Superseded: the live story is `devpost-story.template.md`, rendered with video timestamps into `devpost-story.md` by `scripts/promo/publish_text.js`.
+
 > Everything below is from real runs — no invented numbers or examples.
 
 **Tagline:** Translation keeps the words. Lengua Fina keeps the meaning, using what each audience actually loves.
