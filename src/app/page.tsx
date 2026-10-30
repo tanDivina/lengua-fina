@@ -120,7 +120,7 @@ function TasteFacts({ references }: { references: MarketResult["references"] }) 
               <b>{r.entity.name}</b>{" "}
               <span className="text-[#55554f]">{r.entity.type.replace("urn:entity:", "")}</span>
             </span>
-            <span>{r.entity.affinity !== null ? r.entity.affinity.toFixed(2) : "—"}</span>
+            <span>{r.entity.affinity !== null ? r.entity.affinity.toFixed(2) : "n/a"}</span>
           </div>
           <div className="text-xs text-[#3d3d39]">{r.why}</div>
         </div>
@@ -414,7 +414,7 @@ export default function Home() {
           <div className="sm:pl-8">
             <div className="font-display text-5xl font-extrabold tracking-tight text-gold">0</div>
             <p className="mt-1.5 text-sm leading-snug text-muted">
-              references the agent can invent — it can only cite what Qloo returned in the run
+              references the agent can invent: it can only cite what Qloo returned in the run
             </p>
           </div>
         </div>
@@ -427,8 +427,8 @@ export default function Home() {
             className="underline underline-offset-2 hover:text-gold"
           >
             CSA Research, &ldquo;Can&apos;t Read, Won&apos;t Buy&rdquo;
-          </a>{" "}
-          — 8,709 consumers, 29 countries.
+          </a>
+          , 8,709 consumers in 29 countries.
         </p>
       </section>
 

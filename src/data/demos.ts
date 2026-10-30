@@ -165,7 +165,7 @@ export const DEMOS: Demo[] = [
     "id": "truffles",
     "label": "100% cacao truffles",
     "product": "Hand-rolled truffles from unrefined 100% cacao mass, made in Bocas del Toro, Panama",
-    "copy": "Hand-rolled truffles from unrefined 100% cacao mass — just cane sugar, coconut milk and a pinch of salt. Darker than a Brussels praline and nothing like a supermarket bonbon. One with your afternoon café au lait, or after dinner instead of dessert.",
+    "copy": "Hand-rolled truffles from unrefined 100% cacao mass: just cane sugar, coconut milk and a pinch of salt. Darker than a Brussels praline and nothing like a supermarket bonbon. One with your afternoon café au lait, or after dinner instead of dessert.",
     "markets": [
       {
         "city": "Tokyo",

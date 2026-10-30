@@ -106,7 +106,7 @@ body::after {
   animation-duration: 0.8s;
 }
 
-/* Hovering the hero CTA: he perks up — bigger, faster bob. */
+/* Hovering the hero CTA: he perks up: bigger, faster bob. */
 .mascot-perk {
   scale: 1.08;
   animation-duration: 0.7s;
