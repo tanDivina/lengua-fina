@@ -2,7 +2,7 @@
 
 ## Inspiration
 
-I'm a Belgian translator living on an island in Bocas del Toro, Panama, where I grow cacao and make truffles from unrefined 100% cacao. When I write about chocolate for buyers abroad, the hard part is never the grammar. It's the references. "Smooth as a Brussels praline" sounds like a safe line to a Belgian, but Tokyo doesn't read it, and even Brussels pushes back (see {{t:brussels}} in the video). Translation tools carry the words across and leave the meaning behind, and an LLM on its own guesses at what another culture likes.
+I'm a Belgian translator living on an island in Bocas del Toro, Panama, where I grow cacao, grind it into 100% cacao paste and turn that into truffles. In translation work, the hard part is never the grammar. It's the references. "Smooth as a Brussels praline" sounds like a safe line to a Belgian (Jean Neuhaus II invented the modern filled praline in Brussels in 1912), but Tokyo doesn't read it, and even Brussels pushes back (see {{t:brussels}} in the video). Translation tools carry the words across and leave the meaning behind, and an LLM on its own guesses at what another culture likes.
 
 In Spanish, _lengua_ means both language and tongue: the thing you speak with and the thing you taste with. That's the problem in one word.
 
