@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Architecture diagram for the Devpost gallery, 1920x1280 (3:2). Render (from this folder):
+     Chrome --headless=new --screenshot=OUT.png --window-size=1920,1280 --virtual-time-budget=6000 "file://$PWD/diagram.html" -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400..700&display=swap">
+<style>
+  :root { --stage:#0f0f10; --panel:#19191b; --fg:#f5f5f2; --muted:#b8b8b2; --line:#3a3a37; --gold:#ffd24a; --mandarin:#ff7a45; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1280px; overflow: hidden; }
+  body { position: relative; background: var(--stage); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+  .glow { position: absolute; inset: 0; background: radial-gradient(ellipse 55% 40% at 45% 45%, rgba(255,210,74,0.08), transparent 70%); }
+  .display { font-family: 'Bricolage Grotesque', Inter, sans-serif; font-weight: 800; letter-spacing: -2px; }
+  .kicker { font-weight: 700; letter-spacing: 4px; font-size: 24px; color: var(--gold); text-transform: uppercase; }
+  .title { position: absolute; left: 100px; top: 90px; }
+  .title h2 { font-size: 72px; margin-top: 10px; }
+  .box { position: absolute; top: 500px; height: 200px; padding: 28px 30px; border: 2px solid var(--line); border-radius: 24px; background: var(--panel); }
+  .box h3 { font-family: 'Bricolage Grotesque', Inter, sans-serif; font-weight: 800; font-size: 40px; letter-spacing: -1px; }
+  .box p { color: var(--muted); font-size: 23px; line-height: 1.35; margin-top: 8px; }
+  .box.lit { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold), 0 18px 60px rgba(255,210,74,0.14); }
+  .box.gate { border-color: var(--mandarin); }
+  .box.gate h3 { color: var(--mandarin); }
+  code { font-family: ui-monospace, Menlo, monospace; }
+  .box code { font-size: 22px; color: var(--muted); }
+  .tools { position: absolute; left: 400px; top: 830px; width: 640px; border: 2px solid var(--line); border-radius: 24px; padding: 22px 26px; background: rgba(25,25,27,0.85); }
+  .tools .head { font-weight: 700; letter-spacing: 3px; font-size: 20px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .tool { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 4px; border-top: 1px solid var(--line); }
+  .tool:first-of-type { border-top: 0; }
+  .tool code { font-size: 28px; color: var(--gold); }
+  .tool span { font-family: ui-monospace, Menlo, monospace; font-size: 22px; color: var(--muted); }
+  .lbl { position: absolute; font-size: 24px; line-height: 1.35; }
+  .lbl.m { color: var(--mandarin); }
+  .lbl.g { color: var(--gold); }
+  .lbl.muted { color: var(--muted); }
+  svg { position: absolute; inset: 0; }
+  .foot { position: absolute; left: 100px; right: 100px; bottom: 60px; display: flex; justify-content: space-between; font-size: 22px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="title">
+    <div class="kicker">Under the hood</div>
+    <h2 class="display">One agent, five tools, one rule</h2>
+  </div>
+
+  <svg viewBox="0 0 1920 1280" fill="none">
+    <defs>
+      <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ffd24a"/></marker>
+      <marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ff7a45"/></marker>
+    </defs>
+    <!-- main flow -->
+    <path d="M400 600H462" stroke="#ffd24a" stroke-width="4" marker-end="url(#ag)"/>
+    <path d="M880 600H962" stroke="#ffd24a" stroke-width="4" marker-end="url(#ag)"/>
+    <path d="M1380 600H1462" stroke="#ffd24a" stroke-width="4" marker-end="url(#ag)"/>
+    <!-- agent <-> tools -->
+    <path d="M675 712V818" stroke="#ffd24a" stroke-width="4" marker-start="url(#ag)" marker-end="url(#ag)"/>
+    <!-- rejected: back to the agent -->
+    <path d="M1170 496C1170 400 1110 380 1020 380H780C710 380 675 410 675 488" stroke="#ff7a45" stroke-width="4" stroke-dasharray="14 10" marker-end="url(#am)"/>
+  </svg>
+
+  <div class="box" style="left:100px; width:300px;">
+    <h3>Your copy</h3>
+    <p>product facts + up to three markets: city, ages, language</p>
+  </div>
+  <div class="box lit" style="left:470px; width:410px;">
+    <h3>Claude Opus 5.5</h3>
+    <p>one agent on the Anthropic SDK tool runner, every step streamed to the page</p>
+  </div>
+  <div class="box gate" style="left:970px; width:410px;">
+    <h3>Grounding check</h3>
+    <p><code>submit_localization</code> accepts a reference only if its Qloo id came back in this run</p>
+  </div>
+  <div class="box" style="left:1470px; width:350px;">
+    <h3>Verdict cards</h3>
+    <p>a rewrite per market, with taste facts: Qloo entity + affinity score</p>
+  </div>
+
+  <div class="lbl m" style="left:790px; top:300px; width:600px;"><b>Rejected</b> &rarr; back to the agent to fix it.<br>No made-up references get through.</div>
+  <div class="lbl muted" style="left:700px; top:735px; width:330px;">tool calls + Qloo results</div>
+  <div class="lbl g" style="left:1470px; top:730px; width:350px;">0 inventable references</div>
+
+  <div class="tools">
+    <div class="head">Qloo Taste AI tools</div>
+    <div class="tool"><code>find_entity</code><span>/search</span></div>
+    <div class="tool"><code>find_tags</code><span>/v2/tags</span></div>
+    <div class="tool"><code>market_taste</code><span>/v2/insights</span></div>
+    <div class="tool"><code>check_reference</code><span>/v2/insights, top 100</span></div>
+  </div>
+
+  <div class="lbl muted" style="left:1110px; top:880px; width:700px;">
+    <span style="color:var(--fg); font-weight:700;">market_taste</span>: what this audience loves, by city + age, per entity type (artists, films, books, brands, places)<br><br>
+    <span style="color:var(--fg); font-weight:700;">check_reference</span>: does a reference in your copy rank in this audience's top 100?
+  </div>
+
+  <div class="foot"><span>lengua-fina.vercel.app</span><span>Every reference, traceable to Qloo.</span></div>
+</body>
+</html>
