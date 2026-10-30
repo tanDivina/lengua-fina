@@ -200,7 +200,7 @@ scene('intro/numbers.mp4', 'numbers', 'measured: taste differs by market', [{ li
 personal('p2_story', 'closer', 'Your clip P2: why I built it, about 18 s',
   "I'm Dorien. I translate for a living, and I make truffles from my own cacao. Lengua Fina already rewrites my truffle copy for Tokyo, Brussels and Austin. Next, I'm bringing it to the small businesses I translate and build websites for, so their copy doesn't just speak the language. It tastes local.",
   18, 'intro/overlay2.mov');
-scene('site/close.mp4', 'close', 'close', [{ line: 'n_outro', t: LEAD }], [], LEAD + dur(A('n_outro')) + 1.4);
+scene('intro/tryit.mp4', 'close', 'close: things to try', [{ line: 'n_outro', t: LEAD }]);
 
 // Concatenate picture + voice.
 const list = path.join(SEG, 'list.txt');

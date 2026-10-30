@@ -89,6 +89,19 @@
   .shot img { width: 100%; display: block; }
   .shot .cap { padding: 14px 20px; font-size: 24px; font-weight: 600; }
 
+  /* tryit: the closing card */
+  #tryit .mascot { position: absolute; left: 150px; top: 250px; height: 560px; opacity: 0; }
+  #tryit .mascot svg { height: 560px; width: auto; }
+  #tryit .body { position: absolute; left: 780px; top: 170px; width: 1000px; }
+  #tryit .url { font-size: 92px; color: var(--gold); margin-top: 14px; }
+  #tryit .sub { font-size: 30px; color: var(--muted); margin-top: 6px; }
+  #tryit ol { list-style: none; padding: 0; margin-top: 54px; display: flex; flex-direction: column; gap: 30px; }
+  #tryit li { display: flex; gap: 26px; align-items: baseline; opacity: 0; }
+  #tryit li .n { font-family: 'Bricolage Grotesque', Inter, sans-serif; font-weight: 800; font-size: 54px; color: var(--mandarin); width: 40px; }
+  #tryit li b { display: block; font-size: 40px; font-weight: 700; }
+  #tryit li span { display: block; font-size: 28px; color: var(--muted); margin-top: 4px; }
+  #tryit .tag { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; font-size: 30px; color: var(--muted); opacity: 0; }
+
   /* caption pill (rendered as a still) */
   #caption { align-items: flex-end; justify-content: center; padding-bottom: 54px; }
   #caption .cpill { background: rgba(15,15,16,0.92); border: 2px solid var(--gold); border-radius: 44px; padding: 20px 44px;
@@ -151,6 +164,22 @@
     <div class="shot" id="o2-shot"><img id="o2-img" alt=""><div class="cap">Saved run on my own truffle copy</div></div>
   </div>
 
+  <div class="scene" id="tryit">
+    <div class="glow"></div>
+    <div class="mascot" data-mascot></div>
+    <div class="body">
+      <div class="kicker">Try it yourself</div>
+      <div class="url display">lengua-fina.vercel.app</div>
+      <div class="sub">Free, no sign-in</div>
+      <ol>
+        <li><div class="n">1</div><div><b>Read a saved verdict</b><span>why each reference was dropped, and what Qloo put in its place</span></div></li>
+        <li><div class="n">2</div><div><b>Run the example live</b><span>watch every Qloo call stream in</span></div></li>
+        <li><div class="n">3</div><div><b>Paste your own copy</b><span>compare two cities that share a language</span></div></li>
+      </ol>
+    </div>
+    <div class="tag">Every reference, traceable to Qloo.</div>
+  </div>
+
   <div class="scene" id="caption"><div class="cpill" id="cap-text"></div></div>
 
 <script>
@@ -174,7 +203,7 @@
 
   const ready = [document.fonts.ready];
   if (document.querySelector('[data-mascot]')) {
-    ready.push(fetch(q.get('mascot')).then((r) => r.text()).then((svg) => { document.querySelector('[data-mascot]').innerHTML = svg; }));
+    ready.push(fetch(q.get('mascot')).then((r) => r.text()).then((svg) => { document.querySelectorAll('[data-mascot]').forEach((el) => { el.innerHTML = svg; }); }));
   }
   if (scene === 'cold') { $('c-where').textContent = q.get('where') || ''; $('c-src').textContent = q.get('src') || ''; }
   if (scene === 'overlay2') { const img = $('o2-img'); img.src = q.get('shot'); ready.push(img.decode().catch(() => {})); }
@@ -226,6 +255,12 @@
       show($('o-tokyo'), t, strikeStart, 0.35, 8);
       show($('o-brussels'), t, at('brussels', 15.0), 0.35, 8);
       showOut($('o-fact'), t, at('fact', 12.0), at('factEnd', 16.5));
+    }
+    if (scene === 'tryit') {
+      const m = $('tryit').querySelector('.mascot');
+      show(m, t, 0, 0.6, 24); m.style.transform += ` translateY(${-Math.sin(t * 2.2) * 6}px)`;
+      $('tryit').querySelectorAll('li').forEach((el, i) => show(el, t, 0.5 + i * 0.35, 0.45, 14));
+      show($('tryit').querySelector('.tag'), t, L + 1.4, 0.5, 8);
     }
     if (scene === 'overlay2') {
       showOut($('o2-shot'), t, at('shotAt', 6.0), at('shotEnd', 14.0));

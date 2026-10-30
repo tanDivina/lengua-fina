@@ -6,7 +6,7 @@
 //   WORK/intro/overlay.mov   transparent layer for p1_open (name card, the praline quote)
 //   WORK/intro/overlay2.mov  transparent layer for p2_story (truffles saved run)
 //   WORK/captions/*.png      caption pills
-// Usage: node record_intro.cjs [workdir] [cold,arch,numbers,overlay,overlay2,captions]
+// Usage: node record_intro.cjs [workdir] [cold,arch,numbers,tryit,overlay,overlay2,captions]
 const fs = require('fs');
 const path = require('path');
 const { spawn, execSync } = require('child_process');
@@ -88,6 +88,8 @@ async function main() {
     console.log(`  cold open: "${where}" / "${src}"`);
   }
   if (want('arch')) await render(browser, { scene: 'arch' }, LEAD + line('n_arch') + 1.4, path.join(dir, 'arch.mp4'), false);
+  // Closing card: what to try, over n_outro (replaced the homepage close shot on Oct 30).
+  if (want('tryit')) await render(browser, { scene: 'tryit' }, 7.0, path.join(dir, 'tryit.mp4'), false);
   if (want('numbers')) await render(browser, { scene: 'numbers' }, LEAD + line('n_numbers') + 1.4, path.join(dir, 'numbers.mp4'), false);
 
   // Overlay cue times can be overridden from personal/overlay_times.json once the clip is transcribed.
