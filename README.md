@@ -6,6 +6,14 @@ Translation keeps the words and loses the references. "Smooth as a Brussels pral
 
 In Spanish, *lengua* means both language and tongue: the thing you speak with and the thing you taste with.
 
+## Try it
+
+Live at https://lengua-fina.vercel.app (no sign-in).
+
+1. **Read a verdict first.** Pick a saved run under "El veredicto": "Dropped" says why a reference won't land, and the taste facts show which Qloo entity replaced it, with its affinity score.
+2. **Run one live.** "Load this example into the form", then Transcreate. One to three minutes; the tasting notebook streams every Qloo call.
+3. **Bring your own line.** Copy with a strong local hook (a breakfast, a team, a band). Compare cities that share a language, like Amsterdam and Antwerp, or try one Qloo may not cover, like Willemstad.
+
 ## How it works
 
 An agent (Claude Opus 5.5, via the Anthropic SDK tool runner) gets the copy, the product and up to three markets (city, age ranges, language). It has five tools:

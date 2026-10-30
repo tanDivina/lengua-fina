@@ -20,6 +20,16 @@ You paste your product copy and pick up to three markets: city, age group, langu
 
 From a real run (Oct 25, saved on the site as the "70% dark chocolate" example, and shown at {{t:brussels}}): for **Tokyo**, "your Sunday café au lait" was flagged as a generic French breakfast drink with no local hook and became espresso from CAMELBACK sandwich&espresso, a Tokyo spot with 0.99 affinity for that audience. For **Austin**, "smooth as a Brussels praline" became "more Heartless Bastards than easy listening" (artist, 0.99), and the café au lait became Sunday-morning Chameleon Coffee (brand, 0.98). For **Brussels**, the agent dropped the praline comparison for a reason no translation tool would give you: comparing the bar to the city's own praline invites a contest with local chocolate. It brought in Tamino (0.99) as the after-dinner soundtrack instead. In all three markets it kept the Port pairing but marked it unverified, because Qloo has no entity for Port wine as a drink. It flags what it can't check rather than inventing support.
 
+## Try it yourself
+
+Open https://lengua-fina.vercel.app (no sign-in).
+
+1. **Read a verdict first.** Pick a saved run under "El veredicto". Under each rewrite, "Dropped" says why a reference won't land with that audience, and the taste facts show which Qloo entity replaced it, with its affinity score.
+2. **Run one live.** Click "Load this example into the form", then Transcreate. It takes one to three minutes, and the tasting notebook shows every Qloo call as it happens. The wording will differ from the saved run; the grounding won't.
+3. **Bring your own line.** Paste copy with a strong local hook: a breakfast, a team, a band. Compare cities that share a language, like Amsterdam and Antwerp, or try one Qloo may not cover, like Willemstad, and watch it say so instead of guessing.
+
+The public demo allows 6 live runs per visitor per hour.
+
 ## How we built it
 
 - An agent on Claude (Anthropic SDK tool runner) with five tools over the Qloo hackathon API: `/search`, `/v2/tags` and `/v2/insights` (location + age signals, interest tags).

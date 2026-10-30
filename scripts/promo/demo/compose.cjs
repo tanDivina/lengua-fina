@@ -6,7 +6,7 @@
 // Inputs: site/<scene>.mp4 (record_site.cjs), run/raw.mp4 (record_run.cjs),
 //   intro/*.mp4|mov (record_intro.cjs), audio/ (garden clone), captions/,
 //   ../personal/p1_open + p2_story (.mov/.mp4). Missing clips become slates.
-// Music: tropical.mp3 (Finca Montezuma track), looped, ducked under voices.
+// Music: café track (see MUSIC), looped, ducked under voices.
 // Never overwrites: if the output exists, writes <name>_2.mp4, _3, ...
 // Also writes WORK/scenes.json (segment + moment times) for publish_text.cjs.
 // Usage: node compose.cjs [workdir] [out.mp4]
@@ -19,7 +19,8 @@ const FFPROBE = '/opt/homebrew/bin/ffprobe';
 const MAGICK = '/opt/homebrew/bin/magick';
 const WORK = process.argv[2] || path.join(process.env.HOME, 'Desktop', 'LenguaFina_Video', 'demo_work');
 const PERSONAL = path.join(path.dirname(WORK), 'personal');
-const MUSIC = process.env.MUSIC || path.join(process.env.HOME, 'finca-montezuma-promo', 'public', 'audio', 'tropical.mp3');
+// Café gypsy-jazz bed (ElevenLabs Music, made for D'accord), Dorien's pick over tropical.mp3 on Oct 30.
+const MUSIC = process.env.MUSIC || path.join(process.env.HOME, 'Desktop', 'Daccord_Video', 'daccord_music.mp3');
 const SEG = path.join(WORK, 'seg');
 fs.mkdirSync(SEG, { recursive: true });
 const LEAD = 0.3;

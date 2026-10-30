@@ -56,7 +56,10 @@ Lengua Fina is an AI transcreation agent: it asks Qloo what each audience actual
 
 Everything in the demo is real: a live agent run against the Qloo API on ${tl.ranOn} (real run time ${runtime}, sped up on screen), and two unedited saved runs from Oct 25, 2026, marked as saved runs on screen. The agent can only cite references whose Qloo entity id came back during its own run.
 
-Try it: https://lengua-fina.vercel.app
+Try it: https://lengua-fina.vercel.app (no sign-in)
+1. Read a saved verdict: "Dropped" says why a reference won't land, the taste facts show what Qloo put in its place.
+2. Load the example into the form and run it live (one to three minutes); watch every Qloo call stream in.
+3. Paste your own copy with a strong local hook, and compare two cities that share a language.
 Code (MIT): https://github.com/tanDivina/lengua-fina
 
 Built with: Qloo Taste AI API (/search, /v2/tags, /v2/insights), Claude Opus 5.5 on the Anthropic SDK tool runner, Next.js, TypeScript, Tailwind CSS, Vercel.
@@ -66,7 +69,7 @@ Benchmark: 76% of online shoppers prefer to buy products with information in the
 
 ${chapters.map((c) => `${stamp(c.t)} ${c.title}`).join('\n')}
 
-Made by Dorien Van den Abbeele (Divina Endeavors LLC / Hero Apps) in Bocas del Toro, Panama, for the Qloo Agentic Hackathon 2026. Music: Finca Montezuma.
+Made by Dorien Van den Abbeele (Divina Endeavors LLC / Hero Apps) in Bocas del Toro, Panama, for the Qloo Agentic Hackathon 2026. Music: original café track (ElevenLabs Music).
 
 #QlooHackathon #AIagents #localization #transcreation #Qloo
 `;

@@ -94,6 +94,21 @@ const LANGUAGE_OPTIONS = [
 
 type LogItem = { kind: "tool" | "result" | "note"; text: string; names?: string[] };
 
+const TRY_IDEAS = [
+  {
+    title: "Read a verdict first.",
+    body: "Pick a saved run above. Under each rewrite, \"Dropped\" says why a reference won't land with that audience, and the taste facts show which Qloo entity replaced it, with its affinity score.",
+  },
+  {
+    title: "Run one live.",
+    body: "Click \"Load this example into the form\", then Transcreate. The tasting notebook shows every Qloo call as it happens. The wording will differ from the saved run; the grounding won't.",
+  },
+  {
+    title: "Bring your own line.",
+    body: "Paste copy with a strong local hook: a breakfast, a team, a band. Compare cities that share a language, like Amsterdam and Antwerp, or try one Qloo may not cover, like Willemstad, and watch it say so instead of guessing.",
+  },
+];
+
 // Wrapper colors for the market cards, cycled in order.
 const WRAPPERS = [
   { bg: "#2433c8", fg: "#ffffff", sub: "#dde1ff" },
@@ -631,6 +646,23 @@ export default function Home() {
             These are unedited results from real runs against Qloo and Claude, saved so you can read them
             without waiting. Every reference was returned by Qloo during its run; the agent can&apos;t submit
             one that wasn&apos;t. Load an example above and run it yourself for a fresh read.
+          </p>
+        </section>
+      )}
+
+      {!running && !error && log.length === 0 && !results && (
+        <section className="reveal mt-14 rounded-[28px] border border-line p-6 sm:p-8">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight">Things to try</h2>
+          <div className="mt-5 grid gap-6 sm:grid-cols-3">
+            {TRY_IDEAS.map((t) => (
+              <div key={t.title}>
+                <h3 className="font-semibold text-gold">{t.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">{t.body}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-xs text-muted">
+            Live runs take one to three minutes. The public demo allows 6 runs per visitor per hour.
           </p>
         </section>
       )}
