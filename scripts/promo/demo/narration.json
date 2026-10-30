@@ -15,11 +15,11 @@
     "n_stats": "Seventy-six percent of shoppers prefer to buy in their own language. Translation fixes the words. It doesn't fix the references.",
     "n_copy": "Here's a demo bar with very European hooks, going to three rooms: Tokyo, Brussels, and Austin.",
     "n_run": "One click. The agent asks Qloo what each room loves: artists, brands, places, filtered by city and age.",
-    "n_log": "This is a live run. Every reference in the copy gets checked against Qloo, and every replacement has to come from what Qloo returned in this very run.",
+    "n_log": "This is a live run. Every replacement has to come from what Qloo returned in this very run.",
     "n_verdict": "Three rewrites, each with its taste facts: the exact Qloo entities, and the affinity scores behind every swap.",
-    "n_brussels": "And Brussels? In the saved run from October twenty-fifth, it dropped the praline line outright. Comparing this chocolate to the city's own praline invites a contest with local chocolate.",
-    "n_arch": "Under the hood, a Claude agent runs on the Anthropic tool runner, with five tools over Qloo's search, tags and insights endpoints. Its final answer goes through a grounding check: any reference whose Qloo ID didn't come back in this run is rejected, and the agent has to fix it.",
-    "n_numbers": "Before building, I measured whether taste really differs by market. For thirty to forty-four year olds in Tokyo, Brussels and Austin, Qloo's top twenty artists overlap five percent at most, and the top brands not at all.",
+    "n_brussels": "And Brussels? In the saved run from October twenty-fifth, it dropped the praline outright: it would invite a contest with local chocolate.",
+    "n_arch": "Under the hood, a Claude agent with five tools over Qloo's search, tags and insights endpoints. Its final answer goes through a grounding check: any reference whose Qloo ID didn't come back in this run is rejected.",
+    "n_numbers": "I measured this first. For thirty to forty-four year olds in Tokyo, Brussels and Austin, Qloo's top twenty artists overlap five percent at most, and the top brands not at all.",
     "n_scale": "It works within one language too. The same Dutch copy changes between Amsterdam and Antwerp. And for Willemstad, Qloo has no taste data, so the agent says so, and ships zero references. Flagged, never faked.",
     "n_outro": "Lengua Fina. Every reference, traceable to Qloo."
   }

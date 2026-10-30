@@ -194,25 +194,25 @@
     if (scene === 'arch') {
       show($('a-in'), t, 0.1, 0.5);
       const agent = $('a-agent'); show(agent, t, L + 1.0, 0.5);
-      agent.classList.toggle('lit', t > L + 1.18 && t < L + 9.0);
+      agent.classList.toggle('lit', t > L + 1.18 && t < L + 7.0);
       $('ar1').classList.toggle('lit', t > L + 1.18);
       $('ar1').style.transform = `scaleX(${ease((t - L - 1.0) / 0.4)})`;
-      $('ar2').style.transform = `scaleX(${ease((t - L - 4.1) / 0.4)})`;
-      $('ar2').classList.toggle('lit', t > L + 4.26);
+      $('ar2').style.transform = `scaleX(${ease((t - L - 1.9) / 0.4)})`;
+      $('ar2').classList.toggle('lit', t > L + 2.06);
       const tools = document.querySelectorAll('.tool');
-      tools.forEach((el, i) => show(el, t, L + 4.26 + i * 0.12, 0.4, 10));
-      const litAt = [L + 5.94, L + 6.68, L + 7.34, L + 7.34, L + 10.66];
-      const litTo = [L + 9.0, L + 9.0, L + 9.0, L + 9.0, 99];
+      tools.forEach((el, i) => show(el, t, L + 2.06 + i * 0.12, 0.4, 10));
+      const litAt = [L + 3.8, L + 4.54, L + 5.2, L + 5.2, L + 8.6];
+      const litTo = [L + 7.0, L + 7.0, L + 7.0, L + 7.0, 99];
       tools.forEach((el, i) => el.classList.toggle('lit', t > litAt[i] && t < litTo[i]));
-      show($('a-reject'), t, L + 15.3, 0.45, 12);
-      agent.classList.toggle('lit', agent.classList.contains('lit') || t > L + 17.4);
-      show($('a-out'), t, L + 18.0, 0.5);
+      show($('a-reject'), t, L + 13.2, 0.45, 12);
+      agent.classList.toggle('lit', agent.classList.contains('lit') || t > L + 13.5);
+      show($('a-out'), t, L + 13.9, 0.5);
     }
     if (scene === 'numbers') {
-      document.querySelectorAll('.chip').forEach((el, i) => show(el, t, [L + 6.96, L + 7.86, L + 8.52, L + 5.08][i], 0.4, 10));
-      show($('s-art'), t, L + 10.4, 0.5, 20);
-      show($('s-brand'), t, L + 13.96, 0.5, 20);
-      show($('s-book'), t, L + 15.6, 0.5, 20);
+      document.querySelectorAll('.chip').forEach((el, i) => show(el, t, [L + 3.96, L + 4.84, L + 5.46, L + 1.96][i], 0.4, 10));
+      show($('s-art'), t, L + 7.3, 0.5, 20);
+      show($('s-brand'), t, L + 10.9, 0.5, 20);
+      show($('s-book'), t, L + 12.4, 0.5, 20);
     }
     if (scene === 'overlay') {
       showOut($('o-name'), t, at('name', 0.8), at('nameEnd', 5.6));
@@ -222,7 +222,7 @@
       show($('o-brussels'), t, at('brussels', 15.0), 0.35, 8);
     }
     if (scene === 'overlay2') {
-      showOut($('o2-shot'), t, at('shot', 6.0), at('shotEnd', 14.0));
+      showOut($('o2-shot'), t, at('shotAt', 6.0), at('shotEnd', 14.0));
     }
   };
   window.seek(0);

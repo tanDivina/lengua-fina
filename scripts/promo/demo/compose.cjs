@@ -72,9 +72,10 @@ const next = () => path.join(SEG, `${String(++n).padStart(2, '0')}.mp4`);
 const push = (out, key, label) => { scenes.push({ key, t: +clock.toFixed(2), label }); const d = dur(out); segs.push(out); clock += d; return d; };
 
 // A recorded or rendered clip with narration cues [{line, t}] and caption pills [{name, from, to}].
-function scene(rel, key, label, cues, caps = []) {
+// maxLen trims a scene recorded for an older, longer line.
+function scene(rel, key, label, cues, caps = [], maxLen = Infinity) {
   const v = path.join(WORK, rel);
-  const len = dur(v); const out = next();
+  const len = Math.min(dur(v), maxLen); const out = next();
   const cs = cues.map((c) => ({ ...c, file: A(c.line) }));
   const cp = caps.filter((c) => fs.existsSync(CAP(c.name))).map((c) => ({ ...c, to: Math.min(c.to ?? len - 0.2, len - 0.2) }));
   const capFirst = 1 + cs.length;
@@ -132,8 +133,9 @@ function liveRun() {
   const raw = path.join(WORK, 'run', 'raw.mp4');
   const tl = JSON.parse(fs.readFileSync(path.join(WORK, 'run', 'timeline.json'), 'utf8'));
   const m = tl.marks;
-  const T = dur(raw);
   const dRun = dur(A('n_run')), dLog = dur(A('n_log'));
+  // End shortly after the verdict line rather than at the end of the take.
+  const T = Math.min(dur(raw), m.verdict + 0.3 + dur(A('n_verdict')) + 0.7);
   // Output times: copy plays to the click, n_run starts on the click.
   const runOut = m.click;
   const logOut = runOut + dRun + 0.4;
@@ -181,10 +183,11 @@ own('intro/cold.mp4', 'cold', 'cold open: the praline line, struck');
 personal('p1_open', 'opener', 'Your clip P1: opener, about 17 s',
   "This cacao grows right here, on my island in Bocas del Toro. I turn it into truffles: unrefined, one hundred percent cacao. When I sell chocolate abroad, the hard part isn't the language. It's lines like this one: \"Smooth as a Brussels praline. Perfect with your Sunday café au lait.\" I'm Belgian. I thought that kind of line was safe. In Tokyo, it means nothing. And in Brussels... it's actually worse.",
   17, 'intro/overlay.mov');
-scene('site/hero.mp4', 'hero', 'meet Lengua Fina', [{ line: 'n_intro', t: LEAD }]);
-scene('site/stats.mp4', 'stats', 'benchmark: 76% (CSA Research)', [{ line: 'n_stats', t: LEAD }], [{ name: 'c_stats', from: 0.6 }]);
+// The 76% benchmark rides on the hero as a caption: Dorien's own clips now carry the
+// "translation isn't enough" point, so the separate stats scene was cut for time.
+scene('site/hero.mp4', 'hero', 'meet Lengua Fina + benchmark: 76% (CSA Research)', [{ line: 'n_intro', t: LEAD }], [{ name: 'c_stats', from: 1.0 }]);
 liveRun();
-scene('site/brussels.mp4', 'brussels', 'saved run: Brussels drops the praline', [{ line: 'n_brussels', t: LEAD }], [{ name: 'c_brussels', from: 0.5 }]);
+scene('site/brussels.mp4', 'brussels', 'saved run: Brussels drops the praline', [{ line: 'n_brussels', t: LEAD }], [{ name: 'c_brussels', from: 0.5 }], LEAD + dur(A('n_brussels')) + 1.0);
 scene('intro/arch.mp4', 'arch', 'under the hood', [{ line: 'n_arch', t: LEAD }]);
 scene('intro/numbers.mp4', 'numbers', 'measured: taste differs by market', [{ line: 'n_numbers', t: LEAD }]);
 {
@@ -196,7 +199,7 @@ scene('intro/numbers.mp4', 'numbers', 'measured: taste differs by market', [{ li
 personal('p2_story', 'closer', 'Your clip P2: why I built it, about 18 s',
   "I'm Dorien. I translate for a living, and I make truffles from my own cacao. Lengua Fina already rewrites my truffle copy for Tokyo, Brussels and Austin. Next, I'm bringing it to the small businesses I translate and build websites for, so their copy doesn't just speak the language. It tastes local.",
   18, 'intro/overlay2.mov');
-scene('site/close.mp4', 'close', 'close', [{ line: 'n_outro', t: LEAD }]);
+scene('site/close.mp4', 'close', 'close', [{ line: 'n_outro', t: LEAD }], [], LEAD + dur(A('n_outro')) + 1.4);
 
 // Concatenate picture + voice.
 const list = path.join(SEG, 'list.txt');
